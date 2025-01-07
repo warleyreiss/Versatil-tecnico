@@ -12,11 +12,11 @@ const Index = () => {
 
   const { signed } = useContext(AuthContext)
 
-  const { onVisit } = useContext(AuthContext);
+  const { visit } = useContext(AuthContext);
 
   if (signed) {
     return (
-      <Content visita={onVisit}/>
+      <Content/>
     )
   } else {
 
