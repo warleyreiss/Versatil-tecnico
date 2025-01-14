@@ -774,3 +774,34 @@ color: wheat;
 .dataview {
     height: 90vh;
 }
+.w-toggleButton{
+    display: flex ;
+        flex-direction: column;
+        width: 100%;
+}
+
+.w-toggleButton .p-togglebutton{
+width: 100%;
+border: 1px solid #d8dbde;
+border-radius: 4px;
+margin-top: 5px;
+}
+
+
+.w-sidebar-os .p-sidebar-header{
+    padding: 10px;
+    background-color:white;
+    height: 7vh;
+}
+.w-sidebar-os .p-sidebar-content{
+   padding: 0px 10px 10px 10px;
+   height: 85vh;
+}
+.w-sidebar-os .p-sidebar-header .p-sidebar-icons{
+    background-color: #8e9298;
+    color: white;
+}
+.p-scrollpanel .p-scrollpanel-bar {
+    background: #363d44 !important;
+    border: 0 none;
+}

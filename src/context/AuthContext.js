@@ -59,12 +59,14 @@ export const AuthProvider = ({ children }) => {
         axiosApi.defaults.headers.head[
           "userClientId"
         ] = JSON.parse(localStorage.getItem("@Auth:userClient"));
+        /*
         axiosApi.defaults.headers.head[
           "visite"
         ] = JSON.parse(localStorage.getItem("@Auth:visit"));
         axiosApi.defaults.headers.head[
           "occurrence"
         ] = JSON.parse(localStorage.getItem("@Auth:occurrence"));
+         */
         axiosApi.defaults.headers.head[
           "vehicleId"
         ] = JSON.parse(localStorage.getItem("@Auth:vehicleId"));

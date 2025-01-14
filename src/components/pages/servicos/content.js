@@ -236,8 +236,9 @@ const Content = () => {
     if (teste ==false){
       return renderListItens(product);
     }
-    if(teste !==false)
+    if(teste !==false){
       return renderListItem(product);
+    }
   }
 
   //FORMULARIO CRUD ----------------------------------------------------------------------------------------------|
@@ -483,6 +484,9 @@ const Content = () => {
     }
   }
     */
+
+    //--------------------------------------------------------------------------------------------------------------|
+
   return (
     <>
       <Toast ref={toastBR} position="bottom-right" />
@@ -613,6 +617,7 @@ const Content = () => {
       <Sidebar className='w-sidebar-right' header={<h3>{nomePagina.toUpperCase()}</h3>} visible={visibleCRUD} position="right" blockScroll onHide={() => closedNew()} style={{ width: '100em' }}>
         <ServicosCru registro={registro} filhoParaPaiPost={recebidoDoFilhoPost} filhoParaPaiPatch={recebidoDoFilhoPatch} />
       </Sidebar>
+     
       <Sidebar className='w-sidebar-right w-sidebar-right-detail' header={<h3>DETALHES DA SUA VISITA</h3>} visible={visibleVisita} position="right" blockScroll onHide={() => setVisibleVisita(false)} style={{ width: '100%' }}>
         <div className="card w-card border-top-1 border-300" >
           <div className="p-fluid w-form" >
