@@ -81,25 +81,24 @@ const Content = () => {
 
   useEffect(() => {
     setTimeout(() => {
+      console.log(visit.distancia)
       isMounted.current = true;
       axiosApi.get("/list_service")
         .then((response) => {
           setRegistrosSemFiltros(response.data)
-          /* if (visit.servico_id) {
-             let teste =visit.servico_id
-             let testando = response.data
-             let _filtro = testando.filter((item => item.id ==teste))
-             console.log(teste,testando, _filtro)
-             datasource.current = _filtro
-           } else {
-             console.log('visit.servico_id')
-             datasource.current = response.data
-           }
-             */
+          console.log(response.data)
           datasource.current = response.data
           setTotalRecords(response.data.length)
           setRegistros(datasource.current.slice(0, rows.current))
           setLoading(false)
+        })
+        .catch(function (error) {
+        });
+      axiosApi.get("/open_visite")
+        .then((response) => {
+          if (response.data.msg == 'sem visita') {
+            endVisit()
+          }
         })
         .catch(function (error) {
         });
@@ -149,8 +148,9 @@ const Content = () => {
 
   const rightContents = (
     <React.Fragment>
-      <InputText value={filterValue} icon="pi pi-search" onChange={filterChange} placeholder="Filtrar..." style={{ marginLeft: '10px' }} hidden={visit} />
-      <Button label={'Visita aberta, clique para ver'} onClick={() => setVisibleVisita(true)} className='p-button-success p-button-outlined' hidden={visit} style={{ display: 'inline-masonry' }} />
+      <div hidden={!visit}>
+        <Button label={'Visita aberta, clique para ver'} onClick={() => setVisibleVisita(true)} className='p-button-success p-button-outlined' />
+      </div>
       <Button icon="pi pi-th-large" onClick={() => setVisibleMenuRight(true)} className=' p-button-primary' style={{ marginLeft: '10px' }} />
     </React.Fragment>
   );
@@ -218,7 +218,7 @@ const Content = () => {
           <div class="flex justify-content-end flex-wrap">
             <div class="flex align-items-center justify-content-center">
               <span className="p-buttonset">
-              {/*  <Button label="Abrir ociosidade" className='p-button-danger  card-dataview-footer-opcoes-btn' icon="pi pi-check" onClick={(e) => { confirmOccurrence(data.id) }} hidden={occurrence} />*/}
+                {/*  <Button label="Abrir ociosidade" className='p-button-danger  card-dataview-footer-opcoes-btn' icon="pi pi-check" onClick={(e) => { confirmOccurrence(data.id) }} hidden={occurrence} />*/}
               </span>
             </div>
           </div>
@@ -229,14 +229,14 @@ const Content = () => {
 
   //template do dataview
   const itemTemplate = (product) => {
-    let teste=layout
+    let teste = layout
     if (!product) {
       return;
     }
-    if (teste ==false){
+    if (teste == false) {
       return renderListItens(product);
     }
-    if(teste !==false){
+    if (teste !== false) {
       return renderListItem(product);
     }
   }
@@ -322,7 +322,7 @@ const Content = () => {
   };
   const [registroVisit, setRegistroVisit] = useState(visit ?? emptyregistroVisit);
   const [visibleVisita, setVisibleVisita] = useState(false);
-
+  console.log(registroVisit.veiculo)
   //array de opções dos inputs selects
   const opcoesVisitas = [
     { label: 'SIM', value: 'SIM' },
@@ -351,141 +351,138 @@ const Content = () => {
   }
 
 
-  const fecharVisita = async (servico) => {
-    try {
-      const response = await axiosApi.patch('/closed_visite', registroVisit.id)
-      if (response.data.error) {
-        alert(response.data.error);
-      } else {
-        endVisit()
-        setLayout(visit)
-        visibleVisita(false)
-        registroVisit(emptyregistroVisit)
+  const fecharVisita = async () => {
 
-      }
-    } catch (error) {
-      //console.log(error);
-    }
-
+    endVisit(registroVisit)
+      .then((response) => {
+        setLayout(false)
+        setVisibleVisita(false)
+        setRegistroVisit(emptyregistroVisit)
+       //toastBR("visita finalizada, até a próxima :)")
+      })
+      .catch(function (error) {
+      //  toast('algo errado')
+      console.log(error)
+      });
   }
 
   //--------------------------------------------------------------------------------------------------------------|
 
 
   //FORMULARIO OCIOSIDADE----------------------------------------------------------------------------------------------|
-/*
-  //states
-  let emptyregistroOccurrence = {
-    id: null
-  };
-
-  const [registroOccurrence, setRegistroOccurrence] = useState(emptyregistroVisit);
-  const [occurrenceDialog, setOccurrenceDialog] = useState('');
-  function refresOccurrenceDialog(){
-    if(localStorage.getItem("@Auth:occurrence")==Object){
-      setOccurrenceDialog(true)
-    }else{
-      setOccurrenceDialog(false)
-    }
-  }
-  // funcao para mostrar alerta de confimação pelo usuario
-  const confirmOccurrence = (registro) => {
-    setRegistroOccurrence(emptyregistroOccurrence);
-    endOccurrence() ///remover isto daqui 
-    setOccurrenceDialog(true);
-  }
-  //funcao ocultar/cancelar alerta de confirmação pelo usuario
-  const openOccurrence = async () => {
-    try {
-      const response = await axiosApi.post('/open_occurrence', registroOccurrence);
-      if (response.data.error) {
-        alert(response.data.error);
-      } else {
-        localStorage.setItem("@Auth:occurrence", JSON.stringify(response.data));
-        refresOccurrenceDialog()
+  /*
+    //states
+    let emptyregistroOccurrence = {
+      id: null
+    };
+  
+    const [registroOccurrence, setRegistroOccurrence] = useState(emptyregistroVisit);
+    const [occurrenceDialog, setOccurrenceDialog] = useState('');
+    function refresOccurrenceDialog(){
+      if(localStorage.getItem("@Auth:occurrence")==Object){
+        setOccurrenceDialog(true)
+      }else{
+        setOccurrenceDialog(false)
       }
-    } catch (error) {
     }
-  }
-
-  //funcao ocultar/cancelar alerta de confirmação pelo usuario
-  const closeOccurrence = async () => {
-    try {
-      const response = await axiosApi.patch("closed_occurrence");
-      if (response.data.error) {
-        alert(response.data.error);
-      } else {
-        localStorage.setItem("@Auth:occurrence", undefined);
+    // funcao para mostrar alerta de confimação pelo usuario
+    const confirmOccurrence = (registro) => {
+      setRegistroOccurrence(emptyregistroOccurrence);
+      endOccurrence() ///remover isto daqui 
+      setOccurrenceDialog(true);
+    }
+    //funcao ocultar/cancelar alerta de confirmação pelo usuario
+    const openOccurrence = async () => {
+      try {
+        const response = await axiosApi.post('/open_occurrence', registroOccurrence);
+        if (response.data.error) {
+          alert(response.data.error);
+        } else {
+          localStorage.setItem("@Auth:occurrence", JSON.stringify(response.data));
+          refresOccurrenceDialog()
+        }
+      } catch (error) {
       }
-    } catch (error) {
-      //console.log(error);
     }
-    refresOccurrenceDialog()
-    //registroOccurrence(emptyregistro)
-  }
-
-  //função para popular state registro com o motivo do cancelamento do serviço
-  const onInputChangeDelete = (e, name) => {
-    const val = (e.target && e.target.value) || '';
-    let _registro = { ...registroOccurrence };
-    _registro[`${name}`] = val;
-    setRegistroOccurrence(_registro);
-  }
-
-  function OccurrenceDialogBody() {
-    if (occurrenceDialog) {
-      return (
-        <div className="confirmation-content">
-          <i className="pi pi-stopwatch mr-3" style={{ fontSize: '2rem' }} />
-          <h3>{'Ocorrência em aberta no momento por ' + occurrence.motivo ?? '..'}</h3>
-          <div className="card w-card" style={{ margin: '0px', padding: "0px" }} >
+  
+    //funcao ocultar/cancelar alerta de confirmação pelo usuario
+    const closeOccurrence = async () => {
+      try {
+        const response = await axiosApi.patch("closed_occurrence");
+        if (response.data.error) {
+          alert(response.data.error);
+        } else {
+          localStorage.setItem("@Auth:occurrence", undefined);
+        }
+      } catch (error) {
+        //console.log(error);
+      }
+      refresOccurrenceDialog()
+      //registroOccurrence(emptyregistro)
+    }
+  
+    //função para popular state registro com o motivo do cancelamento do serviço
+    const onInputChangeDelete = (e, name) => {
+      const val = (e.target && e.target.value) || '';
+      let _registro = { ...registroOccurrence };
+      _registro[`${name}`] = val;
+      setRegistroOccurrence(_registro);
+    }
+  
+    function OccurrenceDialogBody() {
+      if (occurrenceDialog) {
+        return (
+          <div className="confirmation-content">
+            <i className="pi pi-stopwatch mr-3" style={{ fontSize: '2rem' }} />
+            <h3>{'Ocorrência em aberta no momento por ' + occurrence.motivo ?? '..'}</h3>
+            <div className="card w-card" style={{ margin: '0px', padding: "0px" }} >
+            </div>
           </div>
-        </div>
-      );
-    } else {
-      return (
-        <div className="confirmation-content">
-          <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
-          <h3>Descreva o motivo pelo qual você deseja registrar uma ocorrênca</h3>
-          <div className="card w-card" style={{ margin: '0px', padding: "0px" }} >
-            <div className="p-fluid w-form" style={{ margin: '0px', padding: "0px" }}>
-              <div className="p-fluid grid">
-                <div className="field w-field col-12 md:col-12">
-                  <div className="p-inputgroup w-inputgroup-select" style={{ marginTop: '0px' }}>
-                    <span className="p-inputgroup-addon">
-                      <i className="pi pi-tag"></i>
-                    </span>
-                    <InputTextarea value={registroOccurrence.motivo ??''} onChange={(e) => onInputChangeDelete(e, 'motivo')} />
+        );
+      } else {
+        return (
+          <div className="confirmation-content">
+            <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
+            <h3>Descreva o motivo pelo qual você deseja registrar uma ocorrênca</h3>
+            <div className="card w-card" style={{ margin: '0px', padding: "0px" }} >
+              <div className="p-fluid w-form" style={{ margin: '0px', padding: "0px" }}>
+                <div className="p-fluid grid">
+                  <div className="field w-field col-12 md:col-12">
+                    <div className="p-inputgroup w-inputgroup-select" style={{ marginTop: '0px' }}>
+                      <span className="p-inputgroup-addon">
+                        <i className="pi pi-tag"></i>
+                      </span>
+                      <InputTextarea value={registroOccurrence.motivo ??''} onChange={(e) => onInputChangeDelete(e, 'motivo')} />
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      );
+        );
+      }
     }
-  }
-
-  const occurrenceDialogFooter = () => {
-    const teste = occurrence
-    if (teste) {
-      return (
-        <React.Fragment>
-          <Button label="Finalizar ocorrência" icon="pi pi-check" className="p-button-outlined p-button-success" onClick={closeOccurrence} />
-        </React.Fragment>
-      );
-    } else {
-      return (
-        <React.Fragment>
-          <Button label="Cancelar" icon="pi pi-times" className="p-button-outlined p-button-danger" onClick={(e) => { setOccurrenceDialog(false) }} />
-          <Button label="Confirmar" icon="pi pi-check" className="p-button-outlined p-button-success" onClick={openOccurrence} />
-        </React.Fragment>
-      );
+  
+    const occurrenceDialogFooter = () => {
+      const teste = occurrence
+      if (teste) {
+        return (
+          <React.Fragment>
+            <Button label="Finalizar ocorrência" icon="pi pi-check" className="p-button-outlined p-button-success" onClick={closeOccurrence} />
+          </React.Fragment>
+        );
+      } else {
+        return (
+          <React.Fragment>
+            <Button label="Cancelar" icon="pi pi-times" className="p-button-outlined p-button-danger" onClick={(e) => { setOccurrenceDialog(false) }} />
+            <Button label="Confirmar" icon="pi pi-check" className="p-button-outlined p-button-success" onClick={openOccurrence} />
+          </React.Fragment>
+        );
+      }
     }
-  }
-    */
+      */
 
-    //--------------------------------------------------------------------------------------------------------------|
+  //--------------------------------------------------------------------------------------------------------------|
 
   return (
     <>
@@ -617,7 +614,7 @@ const Content = () => {
       <Sidebar className='w-sidebar-right' header={<h3>{nomePagina.toUpperCase()}</h3>} visible={visibleCRUD} position="right" blockScroll onHide={() => closedNew()} style={{ width: '100em' }}>
         <ServicosCru registro={registro} filhoParaPaiPost={recebidoDoFilhoPost} filhoParaPaiPatch={recebidoDoFilhoPatch} />
       </Sidebar>
-     
+
       <Sidebar className='w-sidebar-right w-sidebar-right-detail' header={<h3>DETALHES DA SUA VISITA</h3>} visible={visibleVisita} position="right" blockScroll onHide={() => setVisibleVisita(false)} style={{ width: '100%' }}>
         <div className="card w-card border-top-1 border-300" >
           <div className="p-fluid w-form" >
@@ -629,7 +626,7 @@ const Content = () => {
                   <span className="p-inputgroup-addon">
                     <i className="pi pi-calendar-plus"></i>
                   </span>
-                  <InputText value={'new Date(visit.inicio).toLocaleString("pt-br")'} />
+                  <InputText value={new Date(visit.inicio).toLocaleString("pt-br")} disabled />
                 </div>
               </div>
               <div className="field w-field col-6 md:col-6">
@@ -638,7 +635,7 @@ const Content = () => {
                   <span className="p-inputgroup-addon">
                     <i className="pi pi-clock"></i>
                   </span>
-                  <InputText value='tempo decorrido endDate.setDate(endDate.getDate()+5);' />
+                  <InputText value='' disabled />
                 </div>
               </div>
               <div className="field w-field col-6 md:col-6">
@@ -647,7 +644,7 @@ const Content = () => {
                   <span className="p-inputgroup-addon">
                     <i className="pi pi-map-marker"></i>
                   </span>
-                  <InputText value={36 + ' quilomentros'} />
+                  <InputText value={registroVisit.distancia} disabled />
                 </div>
               </div>
               <div className="field w-field col-6 md:col-6">
@@ -656,7 +653,7 @@ const Content = () => {
                   <span className="p-inputgroup-addon">
                     <i className="pi pi-car"></i>
                   </span>
-                  <InputText value={'frota utilizada'} />
+                  <InputText value={registroVisit.veiculo ?? 'sem veículo definido'} disabled />
                 </div>
               </div>
             </div>
@@ -689,7 +686,7 @@ const Content = () => {
           </div>
         </div>
       </Sidebar>
-     {/* <Dialog className='w-dialog-delete' visible={occurrenceDialog} draggable closeOnEscape={false} closable={false} style={{ width: '450px' }} modal footer={occurrenceDialogFooter} >
+      {/* <Dialog className='w-dialog-delete' visible={occurrenceDialog} draggable closeOnEscape={false} closable={false} style={{ width: '450px' }} modal footer={occurrenceDialogFooter} >
         <OccurrenceDialogBody />
       </Dialog>*/}
     </>

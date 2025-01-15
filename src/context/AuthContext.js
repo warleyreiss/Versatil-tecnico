@@ -16,26 +16,25 @@ export const AuthProvider = ({ children }) => {
   const [userTipo, setUserTipo] = useState('');
   const [userSetor, setUserSetor] = useState('');
   const [userClient, setUserClient] = useState('');
-  const [visit, setVisit] = useState(null);
+  const [visit, setVisit] = useState(false);
   const [vehicleId, setVehicleId] = useState(null);
   const [vehicleDesc, setVehicleDesc] = useState(null);
   const [occurrence, setOccurrence] = useState(false);
   //4- verifico se existe usuario logado no navegador
   useEffect(() => {
 
-    const loadingStoreData = async () => {
+    const loadingStoreData = () => {
       //verifico se existem dados salvos
       const storageUser = JSON.parse(localStorage.getItem("@Auth:user"));
       const storageUserId = JSON.parse(localStorage.getItem("@Auth:userId"));
       const storageUserTipo = JSON.parse(localStorage.getItem("@Auth:userTipo"));
       const storageUserSetor = JSON.parse(localStorage.getItem("@Auth:userSetor"));
       const storageUserClient = JSON.parse(localStorage.getItem("@Auth:userClient"));
-      //const storageVisit = JSON.stringify(localStorage.getItem("@Auth:visit"));
-      //const storageOccurrence = JSON.parse(localStorage.getItem("@Auth:occurrence"));
+      const storageVisit = JSON.parse(localStorage.getItem("@Auth:visit"));// && localStorage.getItem("@Auth:visit"));
+      const storageOccurrence = JSON.parse(localStorage.getItem("@Auth:occurrence"));
       const storageVehicleId = JSON.parse(localStorage.getItem("@Auth:vehicleId"));
       const storageVehicleDesc = JSON.parse(localStorage.getItem("@Auth:vehicleDesc"));
       const storageToken = localStorage.getItem("@Auth:token");
-
       // se existir, altero o status de user
       if (storageUser && storageToken) {
         //console.log(userId)
@@ -44,8 +43,8 @@ export const AuthProvider = ({ children }) => {
         setUserTipo(storageUserTipo);
         setUserSetor(storageUserSetor);
         setUserClient(storageUserClient);
-        // setVisit(storageVisit);
-        //  setOccurrence(storageOccurrence);
+        setVisit(storageVisit);
+        setOccurrence(storageOccurrence);
         setVehicleId(storageVehicleId);
         setVehicleDesc(storageVehicleDesc);
         //console.log(axiosApi.defaults.headers)
@@ -59,52 +58,25 @@ export const AuthProvider = ({ children }) => {
         axiosApi.defaults.headers.head[
           "userClientId"
         ] = JSON.parse(localStorage.getItem("@Auth:userClient"));
-        /*
         axiosApi.defaults.headers.head[
           "visite"
         ] = JSON.parse(localStorage.getItem("@Auth:visit"));
         axiosApi.defaults.headers.head[
           "occurrence"
         ] = JSON.parse(localStorage.getItem("@Auth:occurrence"));
-         */
         axiosApi.defaults.headers.head[
           "vehicleId"
         ] = JSON.parse(localStorage.getItem("@Auth:vehicleId"));
         axiosApi.defaults.headers.head[
           "vehicleDesc"
         ] = JSON.parse(localStorage.getItem("@Auth:vehicleDesc"));
-
-
-        //envio do formulario usando a instancia do axios
-        const responseVisit = await axiosApi.get("/open_visite");
-        //verifico se a requisição deu certo
-        if (responseVisit.data.error) {
-          console.log(responseVisit.data.error);
-        } else {
-          setVisit(responseVisit.data);
-          const storageVisit = localStorage.setItem("@Auth:visit", JSON.stringify(responseVisit.data));
-        }
-
-
-        //envio do formulario usando a instancia do axios
-        const responseOccurrence = await axiosApi.get("/open_occurrence");
-
-        //verifico se a requisição deu certo
-        if (responseOccurrence.data.error) {
-          console.log(responseOccurrence.data.error);
-        } else {
-          console.log(responseOccurrence.data)
-          //setVisit(responseOccurrence.data);
-          const storageOccurrence = localStorage.setItem("@Auth:occurrence", JSON.stringify(responseOccurrence.data));
-          setOccurrence(true);
-          console.log(occurrence)
-        }
+        
       } else {
         //console.log('sem login')
       }
     };
     loadingStoreData();
-
+    
   }, []);
 
   //5- funcao "global" para envio do formulario login que será utilizadoo na pagina login
@@ -165,7 +137,7 @@ export const AuthProvider = ({ children }) => {
 
       //envio do formulario usando a instancia do axios
       const responseOccurrence = await axiosApi.get("/open_occurrence");
-
+  
       //verifico se a requisição deu certo
       if (responseOccurrence.data.error) {
         console.log(responseOccurrence.data.error);
@@ -177,7 +149,7 @@ export const AuthProvider = ({ children }) => {
         console.log(occurrence)
       }
     } catch (error) {
-      alert('desculpe, algo está errado');
+      alert(error.response.data.msg_alert);
     }
   };
 
@@ -189,7 +161,7 @@ export const AuthProvider = ({ children }) => {
     axiosApi.defaults.headers.common[
       "Authorization"
     ] = null;
-    window.location.replace('/');
+    window.location.replace('/login');
   };
 
   // funcao para salvar visita no local storage
@@ -197,30 +169,49 @@ export const AuthProvider = ({ children }) => {
     setVisit(data);
     localStorage.setItem("@Auth:visit", JSON.stringify(data));
   };
-
-
-  // funcao para remover visita do local storage
-  //funcao para sair
-  const endVisit = async () => {
-    setVisit(undefined);
-    setOccurrence(undefined);
-    console.log('visita encerrada')
-    localStorage.setItem("@Auth:visit", undefined);
-    localStorage.setItem("@Auth:occurrence", undefined);
-  };
   // funcao para salvar visita no local storage
   const onOccurrence = (data) => {
     setOccurrence(data);
     localStorage.setItem("@Auth:occurrence", JSON.stringify(data));
   };
 
-  const endOccurrence = async () => {
-    setOccurrence(undefined);
-    console.log('ocorrencia encerrada')
-    localStorage.setItem("@Auth:occurrence", undefined);
+  // funcao para remover visita do local storage
+  //funcao para sair
+  const endVisit = async (form) => {
+
+    try {
+      //envio da solicitação usando o axios
+      const response = await axiosApi.patch('/closed_visite', form)
+      //verifico se a requisição deu certo
+      if (response.data.error) {
+        alert(response.data.error);
+      } else {
+        setVisit(false);
+        setOccurrence(null);
+        //console.log('visita encerrada')
+        localStorage.setItem("@Auth:visit",false);
+        localStorage.setItem("@Auth:occurrence", null);
+      }
+    } catch (error) {
+      //console.log(error);
+    }
   };
-
-
+  const endOccurrence = async () => {
+    try {
+      //envio da solicitação usando o axios
+      const response = await axiosApi.patch("closed_occurrence");
+      //verifico se a requisição deu certo
+      if (response.data.error) {
+        alert(response.data.error);
+      } else {
+        setOccurrence(null);
+        //console.log('visita encerrada')
+        localStorage.setItem("@Auth:occurrence", null);
+      }
+    } catch (error) {
+      //console.log(error);
+    }
+  };
   // funcao para salvar visita no local storage
   const selectedCar = (obj) => {
     setVehicleId(obj.id);
@@ -241,7 +232,7 @@ export const AuthProvider = ({ children }) => {
         userClient,
         vehicleDesc,
         vehicleId,
-        visit:true,
+        visit,
         occurrence,
         exceed: false,
         correction: true,

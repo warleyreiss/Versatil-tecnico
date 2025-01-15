@@ -20,6 +20,7 @@ export default function DataviewConteudo(props) {
         axiosApi.get("/list_order_service_filter/" + props.data.id)
             .then((response) => {
                 setRegistros(response.data)
+                console.log('listando os do servico; '+props.data.id,response.data)
             })
             .catch(function (error) {
             });
@@ -39,21 +40,10 @@ export default function DataviewConteudo(props) {
         let button
         switch (rowData.status) {
             case '1':
-                button = <div class="text-right" > <Button icon="pi pi-step-forward" onClick={(e) => visualizarOs(rowData)}/></div>
+                button = <div class="text-right" > <Button icon="pi pi-step-forward" onClick={(e) => visualizarOs(rowData)} /></div>
                 break;
             case '2':
-                switch (rowData.tipo) {
-                    case 'INSTALACAO':
-                        button = <div class="text-right" ><Button icon="pi pi-fast-forward" onClick={(e) => visualizarOs(rowData)}/></div>
-                        break;
-                    case 'MANUTENCAO':
-                        button = <div class="text-right" ><Button icon="pi pi-fast-forward" onClick={(e) => visualizarOs(rowData)}/></div>
-                        break;
-                    case 'REMOCAO':
-                        button = <div class="text-right" > <Button icon="pi pi-fast-forward" onClick={(e) => visualizarOs(rowData)}/></div>
-                        break;
-                }
-
+                button = <div class="text-right" ><Button icon="pi pi-fast-forward" onClick={(e) => visualizarOs(rowData)} /></div>
                 break;
             case '3':
                 button = <div class="text-right" > <Button icon="pi pi-file-edit" onClick={(e) => visualizarOs(rowData)} /></div>
@@ -87,16 +77,34 @@ export default function DataviewConteudo(props) {
         setVisibleExecuteOS(false)
     }
 
-    const recebidoDoFilhoPatch = () => {
+    const recebidoDoFilhoPatch = (registro) => {
+        let _registros = [...registros];
+        let _registro = { registro };
+        const index = findIndexById(registro.id);
+        _registros[index] = _registro;
+        setRegistros(_registros);
+        setVisibleExecuteOS(false)
 
+    }
+    //função para retonar qual o indice do registro da tabela para alteracao
+    const findIndexById = (id) => {
+        let index = -1;
+        for (let i = 0; i < registros.length; i++) {
+            if (registros[i].id === id) {
+                index = i;
+                break;
+            }
+        }
+        return index;
     }
     return (
         <>
             <DataTable value={registros} responsiveLayout="scroll" className='data-table-os'>
                 <Column field="id" header="ID"></Column>
-                <Column field="price" header="Placa/Frota" body={veiculoBodyTemplate}></Column>
-                <Column field="tipo" header="Demanda"></Column>
+                <Column field="placa" header="Placa/Frota" body={veiculoBodyTemplate}></Column>
+                <Column field="tipo" header="Tipo"></Column>
                 <Column field="produto" header="Produto"></Column>
+                <Column field="status" header="status"></Column>
                 <Column field="status" header="Status" body={statusBodyTemplate}></Column>
             </DataTable>
             <Sidebar className='w-sidebar-os' visible={visibleExecuteOS} fullScreen blockScroll={true} dispensável={false} onHide={() => fecharOs()} >

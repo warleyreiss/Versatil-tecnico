@@ -17,6 +17,7 @@ import { Link } from 'react-router-dom';
 import { ScrollPanel } from 'primereact/scrollpanel';
 import SignatureCanvas from 'react-signature-canvas'
 import { Divider } from '@mui/material';
+import { InputText } from 'primereact/inputtext';
 
 const steps = [
     {
@@ -43,7 +44,9 @@ export default function ExecuteOs(props) {
     let emptyregistro = {
         id: null
     };
+    console.log(props.registro)
     const [os, setOs] = useState(props.registro);
+    console.log(os)
     const [atendimentoOs, setAtendimentoOS] = useState(false)
     const [checked1, setChecked1] = useState(false);
     const [checked2, setChecked2] = useState(false);
@@ -56,11 +59,6 @@ export default function ExecuteOs(props) {
     const [registrosPerifericos, setRegistrosPerifericos] = useState([]);
     const [registrosEquipmentosUsuario, setRegistrosEquipmentosUsario] = useState([]);
 
-    const { signature, setSignature } = useState()
-
-    const [toDataURLSignature, setToDataURLSignature] = useState('');
-
-    const [sign, setSign] = useState();
     useEffect(() => {
         //console.log(props.registro.atendimento)
         if (props.registro.atendimento == null || props.registro.atendimento == 'NAO') {
@@ -74,7 +72,6 @@ export default function ExecuteOs(props) {
             let _registro = { ...os };
             _registro['atendimento'] = 'SIM'
         }
-
 
         //REQUISIÇÃO COM A BIBLIOTECA AXIOS PARA SOLICITAR LISTA DE INSUMOS 
         axiosApi.get("/list_insumo_input")
@@ -91,18 +88,6 @@ export default function ExecuteOs(props) {
             .catch(function (error) {
             });
 
-        axiosApi.get("/list_equipment_me")
-            .then((response) => {
-                setRegistrosEquipmentosUsario(response.data)
-            })
-            .catch(function (error) {
-            });
-        axiosApi.get("/list_equipment_warehouse_input/" + os.id)
-            .then((response) => {
-                setRegistrosEquipmentosCliente(response.data)
-            })
-            .catch(function (error) {
-            });
 
     }, [])
     const [currentStep, setCurrentStep] = useState(props.registro.status - 1);
@@ -111,30 +96,53 @@ export default function ExecuteOs(props) {
 
 
     function handleNext() {
-        saveRegistro()
-        if (currentStep == 0) {
 
-            /* axiosApi.patch('/update_order_service_assess',os) 
-             .then(function (response) {
-                 if (response.data == 'sem visita') {
-                     alert("PRIMEIRO ABRA UMA VISITA")
-                 } else {
-                     if(os.atendimento=='SIM'){
-                     setCurrentStep((prevState) => prevState + 1);
-                     }if (os.atendimento=='NAO'){
-                         setCurrentStep((prevState) => prevState + 2);
-                     }
-                 }
-             })
-             .catch(function (error) {
-                 console.log(error)
-                 setCurrentStep((prevState) => prevState + 1);
-             });
-             */
-            setCurrentStep((prevState) => prevState + 1);
+        if (currentStep == 0) {
+            axiosApi.patch('/update_order_service_assess', os)
+                .then(function (response) {
+                    if (response.data == 'sem visita') {
+                        alert("PRIMEIRO ABRA UMA VISITA")
+                    } else {
+                        if (os.atendimento == 'SIM') {
+                            setCurrentStep((prevState) => prevState + 1);
+                        } if (os.atendimento == 'NAO') {
+                            setCurrentStep((prevState) => prevState + 2);
+                        }
+                    }
+                })
+                .catch(function (error) {
+                    console.log(error)
+                });
+
+            //setCurrentStep((prevState) => prevState + 1);
         }
         if (currentStep == 1) {
+            axiosApi.patch('/update_order_service_execute', os)
+                .then(function (response) {
+                    if (response.data == 'sem visita') {
+                        alert("PRIMEIRO ABRA UMA VISITA")
+                    } else {
+                        setCurrentStep((prevState) => prevState + 1);
+                    }
+                })
+                .catch(function (error) {
+                    console.log(error)
+                });
             setCurrentStep((prevState) => prevState + 1);
+        }
+        if (currentStep == 2) {
+            axiosApi.patch('/update_order_service_assignature', os)
+                .then(function (response) {
+                    if (response.data == 'sem visita') {
+                        alert("PRIMEIRO ABRA UMA VISITA")
+                    } else {
+                        props.filhoParaPaiPatch(response.data)
+                    }
+                })
+                .catch(function (error) {
+                    console.log(error)
+                });
+           
         }
         //  setCurrentStep((prevState) => prevState + 1);
     }
@@ -265,41 +273,54 @@ export default function ExecuteOs(props) {
         dataForm.append("id", os.id)
         for (const file of filesElement.current.files) {
             dataForm.append('file', file);
-            console.log(file)
         }
-        axiosApi.patch("/update_order_service_files", dataForm)
-            .then((response) => {
-                console.log(response.data)
-                let _registro = { ...os };
-                _registro[`files`] = response.data;
-                setOs(_registro)
-                console.log(_registro)
-            })
-            .catch(function (error) {
-                console.log(error)
-            });
+        if (filesElement.current.files.length > 0) {
+            axiosApi.patch("/update_order_service_files", dataForm)
+                .then((response) => {
+                    let _registro = { ...os };
+                    _registro[`registro_fotograficos`] = response.data;
+                    setOs(_registro)
+                })
+                .catch(function (error) {
+                    console.log(error)
+                });
+        } else {
+            alert('Selecione pelo ao menos 1 imagem')
+        }
     }
+
 
 
 
     //asinatura
     //FUNÇÃO DA BIBLIOTECA SIGNATURE_PAD
+
+    const { signature, setSignature } = useState()
+    const [toDataURLSignature, setToDataURLSignature] = useState('');
+    const [sign, setSign] = useState();
+    const [visibleAssinatura, setVisibleAssinatura] = useState(false);
+
     const handleClear = () => {
         sign.clear()
-        let input = document.getElementById("input-assinatura")
-        input.value = ""
+
     }
     const handleConfirm = () => {
         let sigImage = document.getElementById("sig-image")
         sigImage.setAttribute("src", sign.toDataURL());
         const canvas = document.getElementById("canvas-signature")
         const url = canvas.toDataURL()
-        setToDataURLSignature(url)
-        let input = document.getElementById("input-assinatura")
-        input.value = url
-        // handleClose()
 
+        setToDataURLSignature(url)
+        let _registro = { ...os };
+        _registro[`assinatura`] = url;
+        setOs(_registro)
+        console.log(_registro)
+        setVisibleAssinatura(false)
     }
+    const fecharAssinatura = () => {
+        setVisibleAssinatura(false)
+    }
+
     return (
         <>
             {/*
@@ -315,7 +336,7 @@ export default function ExecuteOs(props) {
 
                     <ScrollPanel className='col-12 md:col-12' >
                         <p>{steps[currentStep].title}</p>
-
+                        <p>{os.atendimento}</p>
                         {steps[currentStep].id === 0 && (
                             <div className="card " >
                                 <div className="p-fluid w-form" >
@@ -354,23 +375,26 @@ export default function ExecuteOs(props) {
                                         </div>
                                         <div className="field w-field col-12 md:col-12" hidden={atendimentoOs}>
                                             <label class="font-medium text-900">Neste caso precisaremos anexar alguns registros,ok?:</label>
-                                            <div className="p-inputgroup w-inputgroup-select">
+                                            <div className="p-inputgroup w-inputgroup-button">
                                                 <span className="p-inputgroup-addon">
                                                     <i className="pi pi-building"></i>
                                                 </span>
                                                 <input type="file" name="imagem" id="imagem-input" multiple ref={filesElement} disabled={atendimentoOs} required={atendimentoOs} />
-
-                                                <Button label="Carregar arquivos" icon="pi pi-angle-double-left" onClick={saveFiles} />
+                                                <Button label="Fazer upload" className="w-form-button" icon="pi pi-cloud-upload" iconPos='right' onClick={saveFiles} />
                                             </div>
                                         </div>
                                         <div className="field w-field col-12 md:col-12" hidden={atendimentoOs}>
                                             <div className="p-inputgroup ">
-                                                {os.files.map((foto) =>
-                                                    <>
-                                                        <img src={foto} alt="registros" width={'300px'} />
-                                                        <Divider />
-                                                    </>
-                                                )}
+                                                {
+                                                    os.registro_fotograficos ?
+                                                        os.registro_fotograficos.map((foto) =>
+                                                            <>
+                                                                <img src={foto} alt="registros" width={'300px'} />
+                                                                <Divider />
+                                                            </>
+                                                        )
+                                                        : <h7>Nenhuma imagem salva</h7>
+                                                }
                                             </div>
                                         </div>
                                         <div className="field w-field col-12 md:col-12">
@@ -420,7 +444,7 @@ export default function ExecuteOs(props) {
                                                         <i className="pi pi-box"></i>
                                                     </span>
                                                     <Select
-                                                        options={registrosInsumos.map(sup => ({ value: sup.id, label: sup.item }))}
+                                                        options={registrosInsumos.map(sup => ({ value: sup.item, label: sup.item }))}
                                                         onChange={(e) => { onInputSimpleSelectChange(e, 'desc_violacao') }}
                                                         placeholder=''
                                                         isDisabled={!violacaoOs} required={violacaoOs}
@@ -487,7 +511,6 @@ export default function ExecuteOs(props) {
                                                         <i className="pi pi-arrow-circle-down"></i>
                                                     </span>
                                                     <Chips value={os.material_retirado} onChange={(e) => onInputChangeChips(e, 'material_retirado')} />
-
                                                 </div>
                                             </div>
                                             <div className="field w-field col-12 md:col-12">
@@ -497,11 +520,45 @@ export default function ExecuteOs(props) {
                                                         <i className="pi pi-box"></i>
                                                     </span>
                                                     <Select
-                                                        options={registrosPerifericos.map(sup => ({ value: sup.id, label: sup.item }))}
+                                                        options={registrosPerifericos.map(sup => ({ value: sup.item, label: sup.item }))}
                                                         onChange={(e) => { onInputSimpleSelectChange(e, 'periferico') }}
                                                         placeholder=''
+                                                        isMulti
                                                         isDisabled={!atendimentoOs} required={!atendimentoOs}
                                                     />
+                                                </div>
+                                            </div>
+                                            <div className="field w-field col-12 md:col-12">
+                                                <label class="font-medium text-900">Neste caso precisaremos anexar alguns registros,ok?:</label>
+                                                <div className="p-inputgroup w-inputgroup-button">
+                                                    <span className="p-inputgroup-addon">
+                                                        <i className="pi pi-building"></i>
+                                                    </span>
+                                                    <input type="file" name="imagem" id="imagem-input" multiple ref={filesElement} disabled={!atendimentoOs} />
+                                                    <Button label="Fazer upload" className="w-form-button" icon="pi pi-cloud-upload" iconPos='right' onClick={saveFiles} disabled={!atendimentoOs} />
+                                                </div>
+                                            </div>
+                                            <div className="field w-field col-12 md:col-12">
+                                                <div className="p-inputgroup ">
+                                                    {
+                                                        os.registro_fotograficos ?
+                                                            os.registro_fotograficos.map((foto) =>
+                                                                <>
+                                                                    <img src={foto} alt="registros" width={'300px'} />
+                                                                    <Divider />
+                                                                </>
+                                                            )
+                                                            : <h7>Nenhuma imagem salva</h7>
+                                                    }
+                                                </div>
+                                            </div>
+                                            <div className="field w-field col-12 md:col-12">
+                                                <label class="font-medium text-900">Que tal inserir algumas observações?:</label>
+                                                <div className="p-inputgroup w-inputgroup-select">
+                                                    <span className="p-inputgroup-addon">
+                                                        <i className="pi pi-align-left"></i>
+                                                    </span>
+                                                    <InputTextarea value={os.observacao} onChange={(e) => onInputChange(e, 'observacao')} rows={1} cols={30} disabled={!atendimentoOs} />
                                                 </div>
                                             </div>
                                         </div>
@@ -522,61 +579,88 @@ export default function ExecuteOs(props) {
                                             <div className="text-500 w-6 md:w-2 font-medium">motivo do não atendimento:</div>
                                             <div className="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{os.motivo}</div>
                                         </li>
-                                        <li className="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
-                                            <div className="text-500 w-6 md:w-2 font-medium">registro fotográfico:</div>
-                                            <div className="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{os.atendimento}</div>
-                                        </li>
                                     </div>
-                                    <div hidden={!atendimentoOs}>
+                                    <div >
                                         <li className="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
                                             <div className="text-500 w-6 md:w-2 font-medium">Violação identificada?:</div>
-                                            <div className="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{os.violacao}</div>
+                                            <div className="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{os.violacao ? os.violacao : '---'}</div>
                                         </li>
 
                                     </div>
-                                    <div hidden={!violacaoOs}>
+                                    <div >
                                         <li className="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
                                             <div className="text-500 w-6 md:w-2 font-medium">A violação causou danos?:</div>
-                                            <div className="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{os.danos}</div>
+                                            <div className="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{os.danos ? os.danos : '---'}</div>
                                         </li>
                                         <li className="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
                                             <div className="text-500 w-6 md:w-2 font-medium">O que foi violado?:</div>
-                                            <div className="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{os.desc_violacao}</div>
+                                            <div className="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{os.desc_violacao ? os.desc_violacao : '---'}</div>
                                         </li>
                                     </div>
                                     <li className="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
                                         <div className="text-500 w-6 md:w-2 font-medium">Efeito da falha?:</div>
-                                        <div className="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{os.efeito_falha}</div>
+                                        <div className="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{os.efeito_falha ? os.efeito_falha : '---'}</div>
                                     </li>
                                     <li className="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
                                         <div className="text-500 w-6 md:w-2 font-medium">Causa da falha?:</div>
-                                        <div className="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{os.causa_falha}</div>
+                                        <div className="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{os.causa_falha ? os.causa_falha : '---'}</div>
                                     </li>
                                     <li className="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
                                         <div className="text-500 w-6 md:w-2 font-medium">Responsável da falha?:</div>
-                                        <div className="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{os.responsavel_falha}</div>
+                                        <div className="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{os.responsavel_falha ? os.responsavel_falha : '--'}</div>
                                     </li>
                                     <li className="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
                                         <div className="text-500 w-6 md:w-2 font-medium">Equipamento utilizado?:</div>
-                                        <div className="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{os.material_usado ?? 'Sem material utilizado'}</div>
+                                        <div className="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{os.material_usado ?? '--'}</div>
                                     </li>
                                     <li className="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
                                         <div className="text-500 w-6 md:w-2 font-medium">Equipamento removido?:</div>
-                                        <div className="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{os.material_retirado ?? 'Sem material retirado'}</div>
+                                        <div className="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{os.material_retirado ?? '---'}</div>
                                     </li>
                                     <li className="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
                                         <div className="text-500 w-6 md:w-2 font-medium">Periferico?:</div>
-                                        <div className="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{os.periferico ?? 'Sem material retirado'}</div>
+                                        <div className="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{os.periferico ?? '--'}</div>
                                     </li>
                                     <li className="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
-                                        <div className="text-500 w-6 md:w-2 font-medium">Assinatura:</div>
-                                        <img src='' alt="assinatura" id='sig-image' />
+                                        <div className="text-500 w-6 md:w-2 font-medium">Registros fotográficos:</div>
+                                        <div className="field w-field col-12 md:col-12" >
+                                            <div className="p-inputgroup ">
+
+                                                {
+                                                    os.registro_fotograficos ?
+                                                        os.registro_fotograficos.map((foto) =>
+                                                            <>
+                                                                <img src={foto} alt="registros" width={'300px'} />
+                                                                <Divider />
+                                                            </>
+                                                        )
+                                                        : <h7>Nenhuma imagem salva</h7>
+                                                }
+                                            </div>
+                                        </div>
                                     </li>
                                     <li className="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
                                         <div className="text-500 w-6 md:w-2 font-medium">Nome do assinante:</div>
-                                        <div className="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{os.nome_assinatura}</div>
+                                        <div className="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{os.name_signature ? os.name_signature : 'Sem identificação'}</div>
                                     </li>
+                                    <li className="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
+                                        <div className="text-500 w-6 md:w-2 font-medium">Assinatura:</div>
+                                        <div className="field w-field col-12 md:col-12" >
+                                            <div className="p-inputgroup ">
+                                                <img src={os.assinatura} alt="assinatura" id='sig-image' />
+                                            </div>
+                                        </div>
+
+                                    </li>
+
                                 </ul>
+                                <div className="p-fluid w-form" >
+                                    <div className="p-fluid grid">
+                                        <div className="field w-field col-12 md:col-12">
+                                            <Button label="Recolher assinatura" className="w-form-button" icon="pi pi-user-edit" iconPos='right' onClick={(e) => { setVisibleAssinatura(true) }} />
+                                        </div>
+                                    </div>
+                                </div>
                             </>
                         )}
                         {steps[currentStep].id === 4 && (
@@ -584,13 +668,6 @@ export default function ExecuteOs(props) {
 
                             </>
                         )}
-
-
-
-
-
-
-
 
                         {loading && <h1 className="loader">Enviando...</h1>}
                     </ScrollPanel>
@@ -601,7 +678,6 @@ export default function ExecuteOs(props) {
                         <div class="flex align-items-center justify-content-center ">
                             {currentStep > 0 && currentStep < steps.length - 1 && (
                                 <Button label="Voltar" icon="pi pi-angle-double-left" onClick={handleReturn} />
-
                             )}
 
                         </div>
@@ -610,12 +686,34 @@ export default function ExecuteOs(props) {
                                 <Button label="Continuar" icon="pi pi-angle-double-right" iconPos="right" onClick={handleNext} />
                             )}
                             {currentStep === steps.length - 2 && (
-                                <Button label="Concluir" icon="pi pi-thumbs-up" iconPos="right" onClick={handleReturn} />
+                                <Button label="Concluir" icon="pi pi-thumbs-up" iconPos="right" onClick={handleNext} />
                             )}
                         </div>
                     </div>
                 </div>
             </div>
+            <Sidebar className='w-sidebar-os' visible={visibleAssinatura} fullScreen blockScroll={true} dispensável={false} onHide={() => fecharAssinatura()} >
+                <SignatureCanvas penColor='green' canvasProps={{ width: 410, height: 480, className: 'sigCanvas', id: 'canvas-signature' }} ref={data => setSign(data)} />
+                <div className="p-fluid w-form" >
+                    <div className="p-fluid grid">
+                        <div className="field w-field col-12 md:col-12">
+                            <label class="font-medium text-900">Qual nome/funcao do assinante?:</label>
+                            <div className="p-inputgroup w-inputgroup-select">
+                                <span className="p-inputgroup-addon">
+                                    <i className="pi pi-align-left"></i>
+                                </span>
+                                <InputText value={os.name_signature} onChange={(e) => onInputChange(e, 'name_signature')} />
+                            </div>
+                        </div>
+                        <div className="field w-field col-6 md:col-6">
+                            <Button label="Limpar" className="w-form-button p-button-warning" icon="pi pi-eraser" iconPos='right' onClick={(e) => { handleClear() }} />
+                        </div>
+                        <div className="field w-field col-6 md:col-6">
+                            <Button label="Confirmar" className="w-form-button p-button-success" icon="pi pi-check" iconPos='right' onClick={(e) => { handleConfirm() }} />
+                        </div>
+                    </div>
+                </div>
+            </Sidebar>
         </>
 
     );
