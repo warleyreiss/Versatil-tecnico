@@ -77,7 +77,6 @@ export default function DataviewConteudo(props) {
     }
 
     const recebidoDoFilhoPatch = (registro) => {
-        alert('os finalizada')
         let _registros = [...registros];
         let _registro = { registro };
         const index = findIndexById(registro.id);

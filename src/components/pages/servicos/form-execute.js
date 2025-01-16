@@ -19,6 +19,7 @@ import SignatureCanvas from 'react-signature-canvas'
 import { Divider } from '@mui/material';
 import { InputText } from 'primereact/inputtext';
 
+import { Toast } from 'primereact/toast';
 const steps = [
     {
         id: 0,
@@ -39,6 +40,7 @@ const steps = [
     }
 ];
 export default function ExecuteOs(props) {
+    const toast = useRef(null);
     const filesElement = useRef(null);
     //states
     let emptyregistro = {
@@ -92,44 +94,73 @@ export default function ExecuteOs(props) {
     }, [])
     const [currentStep, setCurrentStep] = useState(props.registro.status - 1);
     const [loading, setLoading] = useState(false);
-   
+    const [validacoes, setValidacoes] = useState([]);
 
     function handleNext() {
 
         if (currentStep == 0) {
-            axiosApi.patch('/update_order_service_assess', os)
-                .then(function (response) {
-                    if (response.data == 'sem visita') {
-                        alert("PRIMEIRO ABRA UMA VISITA")
-                    } else {
-                        if (os.atendimento == 'SIM') {
-                            setCurrentStep((prevState) => prevState + 1);
-                        } if (os.atendimento == 'NAO') {
-                            setCurrentStep((prevState) => prevState + 2);
-                        }
-                    }
-                })
-                .catch(function (error) {
-                    console.log(error)
-                });
+            let _validacao = []
+            if (os.atendimento == 'NAO') {
+                if (os.atendimento == null) { _validacao.push({ severity: 'info', summary: 'Pendente', detail: 'Informe se foi possível realizar o atendimento', life: 3000 }) }
+                if (os.motivo_nao_atendimento == null) { _validacao.push({ severity: 'info', summary: 'Pendente', detail: 'Informe o motivo de não haver atendimento', life: 3000 }) }
+                if (os.registro_fotograficos == null && os.motivo_nao_atendimento != "VEICULO INDISPONIVEL") { _validacao.push({ severity: 'info', summary: 'Pendente', detail: 'Anexe pelo ao menos 1 foto', life: 3000 }) }
 
-            //setCurrentStep((prevState) => prevState + 1);
+            }
+            if (_validacao.length == 0) {
+
+                axiosApi.patch('/update_order_service_assess', os)
+                    .then(function (response) {
+                        if (response.data == 'sem visita') {
+                            alert("PRIMEIRO ABRA UMA VISITA")
+                        } else {
+                            if (os.atendimento == 'SIM') {
+                                setCurrentStep((prevState) => prevState + 1);
+                            } if (os.atendimento == 'NAO') {
+                                setCurrentStep((prevState) => prevState + 2);
+                            }
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error)
+                    });
+            } else {
+                toast.current.show(_validacao);
+            }
         }
         if (currentStep == 1) {
-            axiosApi.patch('/update_order_service_execute', os)
-                .then(function (response) {
-                    if (response.data == 'sem visita') {
-                        alert("PRIMEIRO ABRA UMA VISITA")
-                    } else {
-                        setCurrentStep((prevState) => prevState + 1);
-                    }
-                })
-                .catch(function (error) {
-                    console.log(error)
-                });
-            setCurrentStep((prevState) => prevState + 1);
+            let _validacao = []
+            if (os.violacao == null) { _validacao.push({ severity: 'info', summary: 'Pendente', detail: 'informe se houve violação', life: 3000 }) }
+            if (os.danos == null && os.violacao == 'SIM') { _validacao.push({ severity: 'info', summary: 'Pendente', detail: 'Informe se a violação causou danos', life: 3000 }) }
+            if (os.descricao_violacao == null && os.violacao == 'SIM') { _validacao.push({ severity: 'info', summary: 'Pendente', detail: 'Informe o que foi violado', life: 3000 }) }
+            if (os.registro_fotograficos == null && os.violacao == 'SIM') { _validacao.push({ severity: 'info', summary: 'Pendente', detail: 'Anexe pelo ao menos 1 foto', life: 3000 }) }
+            if (os.efeito_falha == null) { _validacao.push({ severity: 'info', summary: 'Pendente', detail: 'informe efeito da falha', life: 3000 }) }
+            if (os.causa_falha == null) { _validacao.push({ severity: 'info', summary: 'Pendente', detail: 'informe causa da falha', life: 3000 }) }
+            if (os.responsavel_falha == null) { _validacao.push({ severity: 'info', summary: 'Pendente', detail: 'informe responavel da falha', life: 3000 }) }
+            //validar materiais conforme tipo de os
+            if (_validacao.length == 0) {
+                axiosApi.patch('/update_order_service_execute', os)
+                    .then(function (response) {
+                        if (response.data == 'sem visita') {
+                            alert("PRIMEIRO ABRA UMA VISITA")
+                        } else {
+                            setCurrentStep((prevState) => prevState + 1);
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error)
+                    });
+                setCurrentStep((prevState) => prevState + 1);
+            } else {
+                toast.current.show(_validacao);
+            }
         }
         if (currentStep == 2) {
+            console.log(os)
+            let _validacao = []
+            if (os.name_signature == null) { _validacao.push({ severity: 'info', summary: 'Pendente', detail: 'informe quem está assinando a OS', life: 3000 }) }
+            if (os.assinatura==null ) { _validacao.push({ severity: 'info', summary: 'Pendente', detail: 'A OS precisa ser assinada', life: 3000 }) }
+           //validar materiais conforme tipo de os
+            if (_validacao.length == 0) {
             axiosApi.patch('/update_order_service_assignature', os)
                 .then(function (response) {
                     if (response.data == 'sem visita') {
@@ -141,9 +172,12 @@ export default function ExecuteOs(props) {
                 .catch(function (error) {
                     console.log(error)
                 });
-           
+            } else {
+                toast.current.show(_validacao);
+            }
+
         }
-        //  setCurrentStep((prevState) => prevState + 1);
+
     }
     function handleReturn() {
         setCurrentStep((prevState) => prevState - 1);
@@ -210,10 +244,10 @@ export default function ExecuteOs(props) {
         { label: 'NÃO, ATENDIMENTO FRUSTADO', value: 'NAO' }
     ];
     const motivo = [
-        { label: 'VEÍCULO COM AVARIAS', value: 'VEÍCULO COM AVARIAS' },
-        { label: 'VEÍCULO EM MANUTENÇÃO', value: 'VEÍCULO EM MANUTENÇÃO' },
-        { label: 'NVEÍCULO INDISPONÍVEL', value: 'VEÍCULO INDISPONÍVEL' },
-        { label: 'VEÍCULO PARADO', value: 'VEÍCULO PARADO' }
+        { label: 'VEÍCULO COM AVARIAS', value: 'VEICULO COM AVARIAS' },
+        { label: 'VEÍCULO EM MANUTENÇÃO', value: 'VEICULO EM MANUTENCAO' },
+        { label: 'VEÍCULO INDISPONÍVEL', value: 'VEICULO INDISPONIVEL' },
+        { label: 'VEÍCULO PARADO', value: 'VEICULO PARADO' }
     ];
     const confirmacao2 = [
         { label: 'SIM', value: 'SIM' },
@@ -322,6 +356,7 @@ export default function ExecuteOs(props) {
 
     return (
         <>
+            <Toast ref={toast} />
             {/*
             <h1>Multi Steps Form</h1>
             <p className="step-guide">
@@ -367,7 +402,7 @@ export default function ExecuteOs(props) {
                                                 <span className="p-inputgroup-addon">
                                                     <i className="pi pi-building"></i>
                                                 </span>
-                                                <Dropdown value={os.motivo} options={motivo} onChange={(e) => onInputChange(e, 'motivo')} disabled={atendimentoOs} required={atendimentoOs} />
+                                                <Dropdown value={os.motivo_nao_atendimento} options={motivo} onChange={(e) => onInputChange(e, 'motivo_nao_atendimento')} disabled={atendimentoOs} required={atendimentoOs} />
 
                                             </div>
                                         </div>
@@ -443,7 +478,7 @@ export default function ExecuteOs(props) {
                                                     </span>
                                                     <Select
                                                         options={registrosInsumos.map(sup => ({ value: sup.item, label: sup.item }))}
-                                                        onChange={(e) => { onInputSimpleSelectChange(e, 'desc_violacao') }}
+                                                        onChange={(e) => { onInputSimpleSelectChange(e, 'descricao_violacao') }}
                                                         placeholder=''
                                                         isDisabled={!violacaoOs} required={violacaoOs}
                                                     />
@@ -527,7 +562,7 @@ export default function ExecuteOs(props) {
                                                 </div>
                                             </div>
                                             <div className="field w-field col-12 md:col-12">
-                                                <label class="font-medium text-900">Neste caso precisaremos anexar alguns registros,ok?:</label>
+                                                <label class="font-medium text-900">Podemos precisar de algumas fotos,ok?:</label>
                                                 <div className="p-inputgroup w-inputgroup-button">
                                                     <span className="p-inputgroup-addon">
                                                         <i className="pi pi-building"></i>
@@ -663,7 +698,7 @@ export default function ExecuteOs(props) {
                         )}
                         {steps[currentStep].id === 4 && (
                             <>
-{'ainda estou desenvolvendo esta página '}
+                                {'ainda estou desenvolvendo esta página '}
                             </>
                         )}
 
