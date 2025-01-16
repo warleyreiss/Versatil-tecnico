@@ -13,7 +13,7 @@ import { InputTextarea } from 'primereact/inputtextarea';
 //IMPORTANTO RECURSOS DE FRAMEWORKS E BIBLIOTECAS
 import { axiosApi } from '../../../services/axios';
 import { Link } from 'react-router-dom';
-
+import { ProgressBar } from 'primereact/progressbar';
 import { ScrollPanel } from 'primereact/scrollpanel';
 import SignatureCanvas from 'react-signature-canvas'
 import { Divider } from '@mui/material';
@@ -92,8 +92,7 @@ export default function ExecuteOs(props) {
     }, [])
     const [currentStep, setCurrentStep] = useState(props.registro.status - 1);
     const [loading, setLoading] = useState(false);
-
-
+   
 
     function handleNext() {
 
@@ -336,7 +335,6 @@ export default function ExecuteOs(props) {
 
                     <ScrollPanel className='col-12 md:col-12' >
                         <p>{steps[currentStep].title}</p>
-                        <p>{os.atendimento}</p>
                         {steps[currentStep].id === 0 && (
                             <div className="card " >
                                 <div className="p-fluid w-form" >
@@ -665,7 +663,7 @@ export default function ExecuteOs(props) {
                         )}
                         {steps[currentStep].id === 4 && (
                             <>
-
+{'ainda estou desenvolvendo esta página '}
                             </>
                         )}
 

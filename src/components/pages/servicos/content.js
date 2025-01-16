@@ -79,21 +79,40 @@ const Content = () => {
     }
   }, [loading]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => {
-    setTimeout(() => {
-      console.log(visit.distancia)
-      isMounted.current = true;
-      axiosApi.get("/list_service")
+  const requisicao = () => {
+    if (visit) {
+      console.log('com visita')
+      axiosApi.get("/list_service/" + visit.servico_id)
+     // axiosApi.get("/list_service/" + 10013)
         .then((response) => {
           setRegistrosSemFiltros(response.data)
-          console.log(response.data)
           datasource.current = response.data
           setTotalRecords(response.data.length)
           setRegistros(datasource.current.slice(0, rows.current))
-          setLoading(false)
+        })
+        .catch(function (error) {
+          console.log(error)
+        });
+      
+    } else {
+      console.log('sem visita')
+      axiosApi.get("/list_service")
+        .then((response) => {
+          setRegistrosSemFiltros(response.data)
+          datasource.current = response.data
+          setTotalRecords(response.data.length)
+          setRegistros(datasource.current.slice(0, rows.current))
         })
         .catch(function (error) {
         });
+    }
+    console.log(registrosSemFiltros)
+    setLoading(false)
+  }
+  useEffect(() => {
+    setTimeout(() => {
+      isMounted.current = true; 
+     /*
       axiosApi.get("/open_visite")
         .then((response) => {
           if (response.data.msg == 'sem visita') {
@@ -102,8 +121,10 @@ const Content = () => {
         })
         .catch(function (error) {
         });
+        */
+      requisicao()
       setLoading(false)
-    }, 1000);
+    }, 3000);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const onPage = (event) => {
@@ -121,21 +142,6 @@ const Content = () => {
   }
   //------------------------------------------------------------------------------------------------------------|
 
-  //OPÇÃO DE FILTRO/PESQUISA -----------------------------------------------------------------------------------|
-  //states
-  const [filterValue, setFilterValue] = useState('');
-  //funcao ao mudar o campo do filtro
-  const filterChange = (e) => {
-    let value = e.target.value;
-    let _registros = { ...registrosSemFiltros };
-    const _filtro = Object.values(_registros).filter((item => item.nome.toLowerCase().includes(value.toLowerCase())))
-    datasource.current = Object.values(_filtro)
-    setTotalRecords(_filtro.length)
-    setRegistros(datasource.current.slice(0, rows.current))
-    setFilterValue(value)
-  }
-
-  //------------------------------------------------------------------------------------------------------------|
 
 
   //LAYOUT DA PAGINA -------------------------------------------------------------------------------------------|
@@ -143,7 +149,7 @@ const Content = () => {
   //cabecalho
   const op = useRef(null);
   const leftContents = (
-    <span>{nomePagina}</span>
+    <span>{nomePagina}</span> 
   );
 
   const rightContents = (
@@ -151,7 +157,7 @@ const Content = () => {
       <div hidden={!visit}>
         <Button label={'Visita aberta, clique para ver'} onClick={() => setVisibleVisita(true)} className='p-button-success p-button-outlined' />
       </div>
-      <Button icon="pi pi-th-large" onClick={() => setVisibleMenuRight(true)} className=' p-button-primary' style={{ marginLeft: '10px' }} />
+    {/*  <Button icon="pi pi-th-large" onClick={() => setVisibleMenuRight(true)} className=' p-button-primary' style={{ marginLeft: '10px' }} />*/}
     </React.Fragment>
   );
 
@@ -322,7 +328,6 @@ const Content = () => {
   };
   const [registroVisit, setRegistroVisit] = useState(visit ?? emptyregistroVisit);
   const [visibleVisita, setVisibleVisita] = useState(false);
-  console.log(registroVisit.veiculo)
   //array de opções dos inputs selects
   const opcoesVisitas = [
     { label: 'SIM', value: 'SIM' },
@@ -339,11 +344,13 @@ const Content = () => {
 
 
   const abrirVisita = (servico) => {
+    console.log(servico)
     const id = { servico };
     axiosApi.post('/open_visite', id)
       .then(function (response) {
         onVisit(response.data)
         setLayout(visit !== 'string')
+        requisicao()
       })
       .catch(function (error) {
         console.log(error)
@@ -357,12 +364,13 @@ const Content = () => {
       .then((response) => {
         setLayout(false)
         setVisibleVisita(false)
+        requisicao()
         setRegistroVisit(emptyregistroVisit)
-       //toastBR("visita finalizada, até a próxima :)")
+        //toastBR("visita finalizada, até a próxima :)")
       })
       .catch(function (error) {
-      //  toast('algo errado')
-      console.log(error)
+        //  toast('algo errado')
+        console.log(error)
       });
   }
 
@@ -626,7 +634,7 @@ const Content = () => {
                   <span className="p-inputgroup-addon">
                     <i className="pi pi-calendar-plus"></i>
                   </span>
-                  <InputText value={new Date(visit.inicio).toLocaleString("pt-br")} disabled />
+                  <InputText value={visit.inicio?new Date(visit.inicio).toLocaleString("pt-br"):''} disabled />
                 </div>
               </div>
               <div className="field w-field col-6 md:col-6">

@@ -20,7 +20,6 @@ export default function DataviewConteudo(props) {
         axiosApi.get("/list_order_service_filter/" + props.data.id)
             .then((response) => {
                 setRegistros(response.data)
-                console.log('listando os do servico; '+props.data.id,response.data)
             })
             .catch(function (error) {
             });
@@ -78,6 +77,7 @@ export default function DataviewConteudo(props) {
     }
 
     const recebidoDoFilhoPatch = (registro) => {
+        alert('os finalizada')
         let _registros = [...registros];
         let _registro = { registro };
         const index = findIndexById(registro.id);
@@ -104,7 +104,6 @@ export default function DataviewConteudo(props) {
                 <Column field="placa" header="Placa/Frota" body={veiculoBodyTemplate}></Column>
                 <Column field="tipo" header="Tipo"></Column>
                 <Column field="produto" header="Produto"></Column>
-                <Column field="status" header="status"></Column>
                 <Column field="status" header="Status" body={statusBodyTemplate}></Column>
             </DataTable>
             <Sidebar className='w-sidebar-os' visible={visibleExecuteOS} fullScreen blockScroll={true} dispensável={false} onHide={() => fecharOs()} >

@@ -70,13 +70,13 @@ export const AuthProvider = ({ children }) => {
         axiosApi.defaults.headers.head[
           "vehicleDesc"
         ] = JSON.parse(localStorage.getItem("@Auth:vehicleDesc"));
-        
+
       } else {
         //console.log('sem login')
       }
     };
     loadingStoreData();
-    
+
   }, []);
 
   //5- funcao "global" para envio do formulario login que será utilizadoo na pagina login
@@ -130,14 +130,20 @@ export const AuthProvider = ({ children }) => {
       if (responseVisit.data.error) {
         console.log(responseVisit.data.error);
       } else {
-        setVisit(responseVisit.data);
-        const storageVisit = localStorage.setItem("@Auth:visit", JSON.stringify(responseVisit.data));
+        if (responseVisit.data.msg == 'sem visita') {
+         setVisit(false)
+          const storageVisit = localStorage.setItem("@Auth:visit", JSON.stringify('false'));
+
+        } else {
+         setVisit(responseVisit.data);
+          const storageVisit = localStorage.setItem("@Auth:visit", JSON.stringify(responseVisit.data));
+        }
       }
 
 
       //envio do formulario usando a instancia do axios
       const responseOccurrence = await axiosApi.get("/open_occurrence");
-  
+
       //verifico se a requisição deu certo
       if (responseOccurrence.data.error) {
         console.log(responseOccurrence.data.error);
@@ -161,7 +167,6 @@ export const AuthProvider = ({ children }) => {
     axiosApi.defaults.headers.common[
       "Authorization"
     ] = null;
-    window.location.replace('/login');
   };
 
   // funcao para salvar visita no local storage
@@ -189,7 +194,7 @@ export const AuthProvider = ({ children }) => {
         setVisit(false);
         setOccurrence(null);
         //console.log('visita encerrada')
-        localStorage.setItem("@Auth:visit",false);
+        localStorage.setItem("@Auth:visit", false);
         localStorage.setItem("@Auth:occurrence", null);
       }
     } catch (error) {
