@@ -720,14 +720,13 @@
 
 .w-sidebar-right-detail,
 .p-sidebar-header {
-    background-color: #2196f3;
     z-index: 3000;
     color: white;
 }
 
 .w-sidebar-right-detail
 .p-sidebar-header {
-    background-color: #2196f3;
+    background-color: transparent;
    
 }
 .w-sidebar-right-detail .p-sidebar-icons .p-sidebar-close {

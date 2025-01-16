@@ -623,7 +623,7 @@ const Content = () => {
         <ServicosCru registro={registro} filhoParaPaiPost={recebidoDoFilhoPost} filhoParaPaiPatch={recebidoDoFilhoPatch} />
       </Sidebar>
 
-      <Sidebar className='w-sidebar-right w-sidebar-right-detail' header={<h3>DETALHES DA SUA VISITA</h3>} visible={visibleVisita} position="right" blockScroll onHide={() => setVisibleVisita(false)} style={{ width: '100%' }}>
+      <Sidebar className='w-sidebar-right w-sidebar-right-detail bg-green-500' header={<h3>DETALHES DA SUA VISITA</h3>} visible={visibleVisita} position="right" blockScroll onHide={() => setVisibleVisita(false)} style={{ width: '100%' }}>
         <div className="card w-card border-top-1 border-300" >
           <div className="p-fluid w-form" >
             <div className="p-fluid grid">
@@ -688,7 +688,7 @@ const Content = () => {
                 </div>
               </div>
               <div className="field w-field col-12 md:col-12">
-                <Button label="Finalizar visita" className="w-form-button bg-white text-black-alpha-80" icon="pi pi-stopwatch'" iconPos='right' onClick={fecharVisita} />
+                <Button label="Finalizar visita" className="w-form-button bg-white text-black-alpha-80 p-button-outlined p-button-success" icon="pi pi-stopwatch'" iconPos='right' onClick={fecharVisita} />
               </div>
             </div>
           </div>
