@@ -158,20 +158,20 @@ export default function ExecuteOs(props) {
             console.log(os)
             let _validacao = []
             if (os.name_signature == null) { _validacao.push({ severity: 'info', summary: 'Pendente', detail: 'informe quem está assinando a OS', life: 3000 }) }
-            if (os.assinatura==null ) { _validacao.push({ severity: 'info', summary: 'Pendente', detail: 'A OS precisa ser assinada', life: 3000 }) }
-           //validar materiais conforme tipo de os
+            if (os.assinatura == null) { _validacao.push({ severity: 'info', summary: 'Pendente', detail: 'A OS precisa ser assinada', life: 3000 }) }
+            //validar materiais conforme tipo de os
             if (_validacao.length == 0) {
-            axiosApi.patch('/update_order_service_assignature', os)
-                .then(function (response) {
-                    if (response.data == 'sem visita') {
-                        alert("PRIMEIRO ABRA UMA VISITA")
-                    } else {
-                        props.filhoParaPaiPatch(response.data)
-                    }
-                })
-                .catch(function (error) {
-                    console.log(error)
-                });
+                axiosApi.patch('/update_order_service_assignature', os)
+                    .then(function (response) {
+                        if (response.data == 'sem visita') {
+                            alert("PRIMEIRO ABRA UMA VISITA")
+                        } else {
+                            props.filhoParaPaiPatch(response.data)
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error)
+                    });
             } else {
                 toast.current.show(_validacao);
             }
@@ -365,7 +365,7 @@ export default function ExecuteOs(props) {
 
 */}
 
-            <div class="flex flex-column">
+            <div className="flex flex-column">
                 <div className='flex  w-sidebar-os-content ' style={{ minHeight: '80vh', maxHeight: '80vh' }}>
 
                     <ScrollPanel className='col-12 md:col-12' >
@@ -375,7 +375,7 @@ export default function ExecuteOs(props) {
                                 <div className="p-fluid w-form" >
                                     <div className="p-fluid grid">
                                         <div className="field w-field col-12 md:col-12">
-                                            <label class="font-medium text-900">Foi possível realizar o atendimento?:</label>
+                                            <label className="font-medium text-900">Foi possível realizar o atendimento?:</label>
                                             <div className="p-inputgroup w-inputgroup-select">
                                                 <span className="p-inputgroup-addon">
                                                     <i className="pi pi-tag"></i>
@@ -384,7 +384,7 @@ export default function ExecuteOs(props) {
                                             </div>
                                         </div>
                                         <div className="field w-field col-12 md:col-12" hidden={!atendimentoOs}>
-                                            <label class="font-medium text-900">Realizou todas estas checagem obrigatórias?:</label>
+                                            <label className="font-medium text-900">Realizou todas estas checagem obrigatórias?:</label>
                                             <div className="p-inputgroup w-inputgroup-select" style={{ border: 'none' }}>
 
                                                 <div className='w-toggleButton' style={{ display: 'flex' }}>
@@ -397,7 +397,7 @@ export default function ExecuteOs(props) {
                                             </div>
                                         </div>
                                         <div className="field w-field col-12 md:col-12" hidden={atendimentoOs}>
-                                            <label class="font-medium text-900">Qual foi o impedimento?:</label>
+                                            <label className="font-medium text-900">Qual foi o impedimento?:</label>
                                             <div className="p-inputgroup w-inputgroup-select">
                                                 <span className="p-inputgroup-addon">
                                                     <i className="pi pi-building"></i>
@@ -407,13 +407,17 @@ export default function ExecuteOs(props) {
                                             </div>
                                         </div>
                                         <div className="field w-field col-12 md:col-12" hidden={atendimentoOs}>
-                                            <label class="font-medium text-900">Neste caso precisaremos anexar alguns registros,ok?:</label>
-                                            <div className="p-inputgroup w-inputgroup-button">
+                                            <label className="font-medium text-900">Neste caso precisaremos anexar alguns registros,ok?:</label>
+                                            <div className="p-inputgroup ">
                                                 <span className="p-inputgroup-addon">
                                                     <i className="pi pi-building"></i>
                                                 </span>
-                                                <input type="file" name="imagem" id="imagem-input" multiple ref={filesElement} disabled={atendimentoOs} required={atendimentoOs} />
-                                                <Button label="Fazer upload" className="w-form-button" icon="pi pi-cloud-upload" iconPos='right' onClick={saveFiles} />
+                                                <div className='w-inputgroup-button'>
+                                                    <label for='imagem-input' className='w-inputgroup-button-label'>Selecionar um arquivo</label>
+                                                    <input type="file" name="imagem" id="imagem-input" multiple ref={filesElement} disabled={atendimentoOs} required={atendimentoOs} />
+                                                    <Button label="Upload" className="w-form-button" icon="pi pi-cloud-upload" iconPos='right' onClick={saveFiles} />
+
+                                                </div>
                                             </div>
                                         </div>
                                         <div className="field w-field col-12 md:col-12" hidden={atendimentoOs}>
@@ -431,7 +435,7 @@ export default function ExecuteOs(props) {
                                             </div>
                                         </div>
                                         <div className="field w-field col-12 md:col-12">
-                                            <label class="font-medium text-900">Que tal inserir algumas observações?:</label>
+                                            <label className="font-medium text-900">Que tal inserir algumas observações?:</label>
                                             <div className="p-inputgroup w-inputgroup-select">
                                                 <span className="p-inputgroup-addon">
                                                     <i className="pi pi-align-left"></i>
@@ -452,7 +456,7 @@ export default function ExecuteOs(props) {
                                             {/* <ScrollPanel style={{ width: '100%', height: '200px' }} className="custombar1">*/}
 
                                             <div className="field w-field col-12 md:col-12">
-                                                <label class="font-medium text-900">Foi identificado alguma violação?:</label>
+                                                <label className="font-medium text-900">Foi identificado alguma violação?:</label>
                                                 <div className="p-inputgroup w-inputgroup-select">
                                                     <span className="p-inputgroup-addon">
                                                         <i className="pi pi-exclamation-circle"></i>
@@ -462,7 +466,7 @@ export default function ExecuteOs(props) {
                                             </div>
 
                                             <div className="field w-field col-12 md:col-12" hidden={!violacaoOs}>
-                                                <label class="font-medium text-900">A violação causou danos?:</label>
+                                                <label className="font-medium text-900">A violação causou danos?:</label>
                                                 <div className="p-inputgroup w-inputgroup-select">
                                                     <span className="p-inputgroup-addon">
                                                         <i className="pi pi-bolt"></i>
@@ -471,7 +475,7 @@ export default function ExecuteOs(props) {
                                                 </div>
                                             </div>
                                             <div className="field w-field col-12 md:col-12" hidden={!violacaoOs}>
-                                                <label class="font-medium text-900">O dano ocorrido foi em qual material/equipamento?:</label>
+                                                <label className="font-medium text-900">O dano ocorrido foi em qual material/equipamento?:</label>
                                                 <div className="p-inputgroup w-inputgroup-select">
                                                     <span className="p-inputgroup-addon">
                                                         <i className="pi pi-box"></i>
@@ -495,7 +499,7 @@ export default function ExecuteOs(props) {
                                             {/* <ScrollPanel style={{ width: '100%', height: '200px' }} className="custombar1">*/}
 
                                             <div className="field w-field col-12 md:col-12">
-                                                <label class="font-medium text-900">Qual a conseguência gerada pela falha?:</label>
+                                                <label className="font-medium text-900">Qual a conseguência gerada pela falha?:</label>
                                                 <div className="p-inputgroup w-inputgroup-select">
                                                     <span className="p-inputgroup-addon">
                                                         <i className="pi pi-question-circle"></i>
@@ -504,7 +508,7 @@ export default function ExecuteOs(props) {
                                                 </div>
                                             </div>
                                             <div className="field w-field col-12 md:col-12">
-                                                <label class="font-medium text-900">Qual foi a causa origem da falha?:</label>
+                                                <label className="font-medium text-900">Qual foi a causa origem da falha?:</label>
                                                 <div className="p-inputgroup w-inputgroup-select">
                                                     <span className="p-inputgroup-addon">
                                                         <i className="pi pi-question-circle"></i>
@@ -513,7 +517,7 @@ export default function ExecuteOs(props) {
                                                 </div>
                                             </div>
                                             <div className="field w-field col-12 md:col-12">
-                                                <label class="font-medium text-900">Quem foi o responsável por gerar a falha?:</label>
+                                                <label className="font-medium text-900">Quem foi o responsável por gerar a falha?:</label>
                                                 <div className="p-inputgroup w-inputgroup-select">
                                                     <span className="p-inputgroup-addon">
                                                         <i className="pi pi-question-circle"></i>
@@ -528,7 +532,7 @@ export default function ExecuteOs(props) {
                                     <div className="p-fluid w-form" >
                                         <div className="p-fluid grid">
                                             <div className="field w-field col-12 md:col-12">
-                                                <label class="font-medium text-900">Informe os equipamentos utilizados:</label>
+                                                <label className="font-medium text-900">Informe os equipamentos utilizados:</label>
                                                 <div className="p-inputgroup w-inputgroup-select">
                                                     <span className="p-inputgroup-addon">
                                                         <i className="pi pi-arrow-circle-up"></i>
@@ -538,7 +542,7 @@ export default function ExecuteOs(props) {
                                                 </div>
                                             </div>
                                             <div className="field w-field col-12 md:col-12">
-                                                <label class="font-medium text-900">Informe os equipamentos removidos:</label>
+                                                <label className="font-medium text-900">Informe os equipamentos removidos:</label>
                                                 <div className="p-inputgroup w-inputgroup-select">
                                                     <span className="p-inputgroup-addon">
                                                         <i className="pi pi-arrow-circle-down"></i>
@@ -547,7 +551,7 @@ export default function ExecuteOs(props) {
                                                 </div>
                                             </div>
                                             <div className="field w-field col-12 md:col-12">
-                                                <label class="font-medium text-900">Informe se houve periféricos utilizados:</label>
+                                                <label className="font-medium text-900">Informe se houve periféricos utilizados:</label>
                                                 <div className="p-inputgroup w-inputgroup-select">
                                                     <span className="p-inputgroup-addon">
                                                         <i className="pi pi-box"></i>
@@ -562,13 +566,17 @@ export default function ExecuteOs(props) {
                                                 </div>
                                             </div>
                                             <div className="field w-field col-12 md:col-12">
-                                                <label class="font-medium text-900">Podemos precisar de algumas fotos,ok?:</label>
-                                                <div className="p-inputgroup w-inputgroup-button">
+                                                <label className="font-medium text-900">Podemos precisar de algumas fotos,ok?:</label>
+                                                <div className="p-inputgroup">
                                                     <span className="p-inputgroup-addon">
                                                         <i className="pi pi-building"></i>
                                                     </span>
-                                                    <input type="file" name="imagem" id="imagem-input" multiple ref={filesElement} disabled={!atendimentoOs} />
-                                                    <Button label="Fazer upload" className="w-form-button" icon="pi pi-cloud-upload" iconPos='right' onClick={saveFiles} disabled={!atendimentoOs} />
+                                                    <div className='w-inputgroup-button'>
+                                                        <label for='imagem-input' className='w-inputgroup-button-label'>Selecionar um arquivo</label>
+                                                        <input type="file" name="imagem" id="imagem-input" multiple ref={filesElement} disabled={!atendimentoOs} />
+                                                        <Button label="Upload" className="w-form-button" icon="pi pi-cloud-upload" iconPos='right' onClick={saveFiles} />
+
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div className="field w-field col-12 md:col-12">
@@ -586,7 +594,7 @@ export default function ExecuteOs(props) {
                                                 </div>
                                             </div>
                                             <div className="field w-field col-12 md:col-12">
-                                                <label class="font-medium text-900">Que tal inserir algumas observações?:</label>
+                                                <label className="font-medium text-900">Que tal inserir algumas observações?:</label>
                                                 <div className="p-inputgroup w-inputgroup-select">
                                                     <span className="p-inputgroup-addon">
                                                         <i className="pi pi-align-left"></i>
@@ -707,14 +715,14 @@ export default function ExecuteOs(props) {
                 </div>
 
                 <div className=' w-sidebar-os-footer'>
-                    <div class="flex justify-content-between flex-wrap" style={{ height: '10vh', zIndex: '5000' }}>
-                        <div class="flex align-items-center justify-content-center ">
+                    <div className="flex justify-content-between flex-wrap" style={{ height: '10vh', zIndex: '5000' }}>
+                        <div className="flex align-items-center justify-content-center ">
                             {currentStep > 0 && currentStep < steps.length - 1 && (
                                 <Button label="Voltar" icon="pi pi-angle-double-left" onClick={handleReturn} />
                             )}
 
                         </div>
-                        <div class="flex align-items-center justify-content-center ">
+                        <div className="flex align-items-center justify-content-center ">
                             {currentStep < steps.length - 2 && (
                                 <Button label="Continuar" icon="pi pi-angle-double-right" iconPos="right" onClick={handleNext} />
                             )}
@@ -730,7 +738,7 @@ export default function ExecuteOs(props) {
                 <div className="p-fluid w-form" >
                     <div className="p-fluid grid">
                         <div className="field w-field col-12 md:col-12">
-                            <label class="font-medium text-900">Qual nome/funcao do assinante?:</label>
+                            <label className="font-medium text-900">Qual nome/funcao do assinante?:</label>
                             <div className="p-inputgroup w-inputgroup-select">
                                 <span className="p-inputgroup-addon">
                                     <i className="pi pi-align-left"></i>

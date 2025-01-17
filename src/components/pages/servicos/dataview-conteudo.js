@@ -39,16 +39,16 @@ export default function DataviewConteudo(props) {
         let button
         switch (rowData.status) {
             case '1':
-                button = <div class="text-right" > <Button icon="pi pi-step-forward" onClick={(e) => visualizarOs(rowData)} /></div>
+                button = <div className="text-right" > <Button icon="pi pi-step-forward" onClick={(e) => visualizarOs(rowData)} /></div>
                 break;
             case '2':
-                button = <div class="text-right" ><Button icon="pi pi-fast-forward" onClick={(e) => visualizarOs(rowData)} /></div>
+                button = <div className="text-right" ><Button icon="pi pi-fast-forward" onClick={(e) => visualizarOs(rowData)} /></div>
                 break;
             case '3':
-                button = <div class="text-right" > <Button icon="pi pi-file-edit" onClick={(e) => visualizarOs(rowData)} /></div>
+                button = <div className="text-right" > <Button icon="pi pi-file-edit" onClick={(e) => visualizarOs(rowData)} /></div>
                 break;
             case '4':
-                button = <div class="text-right" > <Button icon="pi pi-thumbs-up" onClick={(e) => visualizarOs(rowData)} /></div>
+                button = <div className="text-right" > <Button icon="pi pi-thumbs-up" onClick={(e) => visualizarOs(rowData)} /></div>
                 break;
             default:
                 //Instruções executadas quando o valor da expressão é diferente de todos os cases
@@ -56,6 +56,11 @@ export default function DataviewConteudo(props) {
         }
 
         return button
+    }
+    const statusBodyTemplateAtividade = (rowData) => {
+      
+
+        return rowData.tipo+"/ "+rowData.produto
     }
 
 
@@ -99,13 +104,11 @@ export default function DataviewConteudo(props) {
     return (
         <>
             <DataTable value={registros} responsiveLayout="scroll" className='data-table-os'>
-                <Column field="id" header="ID"></Column>
                 <Column field="placa" header="Placa/Frota" body={veiculoBodyTemplate}></Column>
-                <Column field="tipo" header="Tipo"></Column>
-                <Column field="produto" header="Produto"></Column>
-                <Column field="status" header="Status" body={statusBodyTemplate}></Column>
+                <Column  header="Status" body={statusBodyTemplateAtividade}></Column>
+                <Column  header="Status" body={statusBodyTemplate}></Column>
             </DataTable>
-            <Sidebar className='w-sidebar-os' visible={visibleExecuteOS} fullScreen blockScroll={true} dispensável={false} onHide={() => fecharOs()} >
+            <Sidebar className='w-sidebar-os' header={'Execução os: '+registroExecucao.id} visible={visibleExecuteOS} fullScreen blockScroll={true} dispensável={false} onHide={() => fecharOs()} >
                 <ExecuteOs registro={registroExecucao} filhoParaPaiPatch={recebidoDoFilhoPatch} />
             </Sidebar>
 

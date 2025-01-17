@@ -45,7 +45,8 @@ import ServicosCru from './form-cru';
 import DataviewConteudo from './dataview-conteudo';
 const Content = () => {
 
-  const { visit } = useContext(AuthContext);
+  //const { visit } = useContext(AuthContext);
+  let visit = JSON.parse(localStorage.getItem("@Auth:visit"))
   const { onVisit } = useContext(AuthContext);
   const { endVisit } = useContext(AuthContext);
 
@@ -56,8 +57,8 @@ const Content = () => {
   //STATES E INSTANCIAS DA PAGINA -----------------------------------------------------------------------------|
   const [visibleMenuRight, setVisibleMenuRight] = useState(false);
   const nomePagina = 'Serviços em Aberto'
-  const [registros, setRegistros] = useState(null);
-  const [registrosSemFiltros, setRegistrosSemFiltros] = useState(null);
+  const [registros, setRegistros] = useState([]);
+  const [registrosSemFiltros, setRegistrosSemFiltros] = useState([]);
   const [layout, setLayout] = useState(visit);
   const [loading, setLoading] = useState(true);
   const [first, setFirst] = useState(0);
@@ -80,10 +81,15 @@ const Content = () => {
   }, [loading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const requisicao = () => {
-    if (visit) {
-      console.log('com visita')
+    setRegistrosSemFiltros(emptyregistro)
+    datasource.current = []
+    setTotalRecords(0)
+    setRegistros([])
+    if (JSON.parse(localStorage.getItem("@Auth:visit"))) {
+      visit = JSON.parse(localStorage.getItem("@Auth:visit"))
+      let visitId = visit.servico_id
       axiosApi.get("/list_service/" + visit.servico_id)
-     // axiosApi.get("/list_service/" + 10013)
+        // axiosApi.get("/list_service/" + 10013)
         .then((response) => {
           setRegistrosSemFiltros(response.data)
           datasource.current = response.data
@@ -93,9 +99,8 @@ const Content = () => {
         .catch(function (error) {
           console.log(error)
         });
-      
     } else {
-      console.log('sem visita')
+      console.log('nao tem')
       axiosApi.get("/list_service")
         .then((response) => {
           setRegistrosSemFiltros(response.data)
@@ -106,22 +111,11 @@ const Content = () => {
         .catch(function (error) {
         });
     }
-    console.log(registrosSemFiltros)
     setLoading(false)
   }
   useEffect(() => {
     setTimeout(() => {
-      isMounted.current = true; 
-     /*
-      axiosApi.get("/open_visite")
-        .then((response) => {
-          if (response.data.msg == 'sem visita') {
-            endVisit()
-          }
-        })
-        .catch(function (error) {
-        });
-        */
+      isMounted.current = true;
       requisicao()
       setLoading(false)
     }, 3000);
@@ -149,15 +143,15 @@ const Content = () => {
   //cabecalho
   const op = useRef(null);
   const leftContents = (
-    <span>{nomePagina}</span> 
+    <span>{nomePagina}</span>
   );
 
   const rightContents = (
     <React.Fragment>
       <div hidden={!visit}>
-        <Button label={'Visita aberta, clique para ver'} onClick={() => setVisibleVisita(true)} className='p-button-success p-button-outlined' />
+        <Button label={'Visita aberta'} onClick={() => setVisibleVisita(true)} className='p-button-success p-button-outlined' />
       </div>
-    {/*  <Button icon="pi pi-th-large" onClick={() => setVisibleMenuRight(true)} className=' p-button-primary' style={{ marginLeft: '10px' }} />*/}
+      {/*  <Button icon="pi pi-th-large" onClick={() => setVisibleMenuRight(true)} className=' p-button-primary' style={{ marginLeft: '10px' }} />*/}
     </React.Fragment>
   );
 
@@ -185,19 +179,19 @@ const Content = () => {
   const renderListItens = (data) => {
     return (
       <Card className='relative card-dataview' title={headerCard(data)} style={{ width: '100em', height: 'auto' }} >
-        <div class="absolute top-0 right-0 flex align-items-center justify-content-center card-dataview-content ">
-          <div class="text-right card-dataview-buttons" >
+        <div className="absolute top-0 right-0 flex align-items-center justify-content-center card-dataview-content ">
+          <div className="text-right card-dataview-buttons" >
           </div>
         </div>
         <Panel className='flex flex-column-reverse card-dataview-body-panel-os' toggleable collapsed style={{ border: 'none' }}>
           <DataviewConteudo data={data} className='card-dataview-body-panel-os-content' style={{ border: 'none' }} />
         </Panel>
-        <div class="text-left card-dataview-body-obs">
+        <div className="text-left card-dataview-body-obs">
           {data.observacoes ? data.observacoes : "Sem orientações"}
         </div>
-        <div class="text-center card-dataview-footer-opcoes">
-          <div class="flex justify-content-end flex-wrap">
-            <div class="flex align-items-center justify-content-center">
+        <div className="text-center card-dataview-footer-opcoes">
+          <div className="flex justify-content-end flex-wrap">
+            <div className="flex align-items-center justify-content-center">
               <span className="p-buttonset">
                 <Button label="Abrir visita" className='p-button-success card-dataview-footer-opcoes-btn' icon="pi pi-check" onClick={(e) => { abrirVisita(data.id) }} />
               </span>
@@ -211,18 +205,18 @@ const Content = () => {
   const renderListItem = (data) => {
     return (
       <Card className='relative card-dataview' title={headerCard(data)} style={{ width: '100em', height: 'auto' }} >
-        <div class="absolute top-0 right-0 flex align-items-center justify-content-center card-dataview-content ">
-          <div class="text-right card-dataview-buttons" >
+        <div className="absolute top-0 right-0 flex align-items-center justify-content-center card-dataview-content ">
+          <div className="text-right card-dataview-buttons" >
           </div>
         </div>
         <DataviewConteudo data={data} className='card-dataview-body-panel-os-content' style={{ border: 'none' }} />
 
-        <div class="text-left card-dataview-body-obs">
+        <div className="text-left card-dataview-body-obs">
           {data.observacoes ? data.observacoes : "Sem orientações"}
         </div>
-        <div class="text-center card-dataview-footer-opcoes">
-          <div class="flex justify-content-end flex-wrap">
-            <div class="flex align-items-center justify-content-center">
+        <div className="text-center card-dataview-footer-opcoes">
+          <div className="flex justify-content-end flex-wrap">
+            <div className="flex align-items-center justify-content-center">
               <span className="p-buttonset">
                 {/*  <Button label="Abrir ociosidade" className='p-button-danger  card-dataview-footer-opcoes-btn' icon="pi pi-check" onClick={(e) => { confirmOccurrence(data.id) }} hidden={occurrence} />*/}
               </span>
@@ -235,14 +229,13 @@ const Content = () => {
 
   //template do dataview
   const itemTemplate = (product) => {
-    let teste = layout
     if (!product) {
       return;
     }
-    if (teste == false) {
+    if (!visit) {
       return renderListItens(product);
     }
-    if (teste !== false) {
+    if (visit) {
       return renderListItem(product);
     }
   }
@@ -349,7 +342,8 @@ const Content = () => {
     axiosApi.post('/open_visite', id)
       .then(function (response) {
         onVisit(response.data)
-        setLayout(visit !== 'string')
+        visit = JSON.parse(localStorage.getItem("@Auth:visit"))
+        // setLayout(visit !== 'string')
         requisicao()
       })
       .catch(function (error) {
@@ -362,7 +356,8 @@ const Content = () => {
 
     endVisit(registroVisit)
       .then((response) => {
-        setLayout(false)
+        //  setLayout(false)
+        visit = false
         setVisibleVisita(false)
         requisicao()
         setRegistroVisit(emptyregistroVisit)
@@ -623,13 +618,13 @@ const Content = () => {
         <ServicosCru registro={registro} filhoParaPaiPost={recebidoDoFilhoPost} filhoParaPaiPatch={recebidoDoFilhoPatch} />
       </Sidebar>
 
-      <Sidebar className='w-sidebar-right w-sidebar-right-detail bg-green-500' header={<h3>DETALHES DA SUA VISITA</h3>} visible={visibleVisita} position="right" blockScroll onHide={() => setVisibleVisita(false)} style={{ width: '100%' }}>
+      <Sidebar className='w-sidebar-right w-sidebar-right-detail bg-green-500' header={<h3>DETALHES DA VISITA</h3>} visible={visibleVisita} position="right" blockScroll onHide={() => setVisibleVisita(false)} style={{ width: '100%' }}>
         <div className="card w-card border-top-1 border-300" >
           <div className="p-fluid w-form" >
             <div className="p-fluid grid">
               <InputText value={registroVisit.id} hidden />
-              <div className="field w-field col-6 md:col-6">
-                <label class="font-medium text-900">Início:</label>
+              <div className="field w-field col-12 md:col-12">
+                <label className="font-medium text-900">Início:</label>
                 <div className="p-inputgroup input-transparent">
                   <span className="p-inputgroup-addon">
                     <i className="pi pi-calendar-plus"></i>
@@ -637,8 +632,8 @@ const Content = () => {
                   <InputText value={visit.inicio?new Date(visit.inicio).toLocaleString("pt-br"):''} disabled />
                 </div>
               </div>
-              <div className="field w-field col-6 md:col-6">
-                <label class="font-medium text-900">Duração:</label>
+              <div className="field w-field col-12 md:col-12">
+                <label className="font-medium text-900">Duração:</label>
                 <div className="p-inputgroup input-transparent">
                   <span className="p-inputgroup-addon">
                     <i className="pi pi-clock"></i>
@@ -646,8 +641,8 @@ const Content = () => {
                   <InputText value='' disabled />
                 </div>
               </div>
-              <div className="field w-field col-6 md:col-6">
-                <label class="font-medium text-900">Distância total prevista:</label>
+              <div className="field w-field col-12 md:col-12">
+                <label className="font-medium text-900">Distância total prevista:</label>
                 <div className="p-inputgroup input-transparent">
                   <span className="p-inputgroup-addon">
                     <i className="pi pi-map-marker"></i>
@@ -655,8 +650,8 @@ const Content = () => {
                   <InputText value={registroVisit.distancia} disabled />
                 </div>
               </div>
-              <div className="field w-field col-6 md:col-6">
-                <label class="font-medium text-900">Frota em uso:</label>
+              <div className="field w-field col-12 md:col-12">
+                <label className="font-medium text-900">Frota em uso:</label>
                 <div className="p-inputgroup input-transparent">
                   <span className="p-inputgroup-addon">
                     <i className="pi pi-car"></i>
@@ -670,7 +665,7 @@ const Content = () => {
           <div className="p-fluid w-form" style={{ backgroundColor: 'white' }}>
             <div className="p-fluid grid">
               <div className="field w-field col-6 md:col-6">
-                <label class="font-medium text-900">Foi necessário despesa com alimentação?:</label>
+                <label className="font-medium text-900">Foi necessário despesa com alimentação?:</label>
                 <div className="p-inputgroup ">
                   <span className="p-inputgroup-addon">
                     <i className="pi pi-credit-card"></i>
@@ -679,7 +674,7 @@ const Content = () => {
                 </div>
               </div>
               <div className="field w-field col-6 md:col-6">
-                <label class="font-medium text-900">Foi necessário despesa com hospedagem?:</label>
+                <label className="font-medium text-900">Foi necessário despesa com hospedagem?:</label>
                 <div className="p-inputgroup ">
                   <span className="p-inputgroup-addon">
                     <i className="pi pi-credit-card"></i>

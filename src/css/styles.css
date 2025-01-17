@@ -590,8 +590,21 @@
 
 .w-inputgroup-button {
     padding: 0.5rem 0.5rem 0.5rem 0rem !important;
+    display: flex;
+    flex-direction: row;
 }
-
+.w-inputgroup-button input {
+display: none;
+}
+.w-inputgroup-button .w-inputgroup-button-label{
+    background-color: #3498db;
+    border-radius: 3px;
+    color: #fff;
+    cursor: pointer;
+    padding: 6px 6px;
+    margin-right: 5px;
+    
+}
 .w-inputgroup-button button {
     padding: 0.3rem !important;
     margin-top: 0px !important;

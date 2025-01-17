@@ -97,7 +97,6 @@ export const AuthProvider = ({ children }) => {
         ] = `Bearer ${response.data.token}`;
 
         //7- salvo as informações no local storage
-        console.log(response.data)
         localStorage.setItem("@Auth:user", JSON.stringify(response.data.nome));
         localStorage.setItem("@Auth:userId", JSON.stringify(response.data.id));
         localStorage.setItem("@Auth:userTipo", JSON.stringify(response.data.tipo));
@@ -132,7 +131,7 @@ export const AuthProvider = ({ children }) => {
       } else {
         if (responseVisit.data.msg == 'sem visita') {
          setVisit(false)
-          const storageVisit = localStorage.setItem("@Auth:visit", JSON.stringify('false'));
+          const storageVisit = localStorage.setItem("@Auth:visit", JSON.stringify(false));
 
         } else {
          setVisit(responseVisit.data);
@@ -192,10 +191,10 @@ export const AuthProvider = ({ children }) => {
         alert(response.data.error);
       } else {
         setVisit(false);
-        setOccurrence(null);
+        setOccurrence(false);
         //console.log('visita encerrada')
         localStorage.setItem("@Auth:visit", false);
-        localStorage.setItem("@Auth:occurrence", null);
+        localStorage.setItem("@Auth:occurrence", false);
       }
     } catch (error) {
       //console.log(error);
@@ -209,9 +208,9 @@ export const AuthProvider = ({ children }) => {
       if (response.data.error) {
         alert(response.data.error);
       } else {
-        setOccurrence(null);
+        setOccurrence(false);
         //console.log('visita encerrada')
-        localStorage.setItem("@Auth:occurrence", null);
+        localStorage.setItem("@Auth:occurrence",false);
       }
     } catch (error) {
       //console.log(error);

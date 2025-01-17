@@ -157,7 +157,7 @@ const val = e.map(c => c.value)
           <div className="p-fluid grid">
             <InputText value={registro.id} onChange={(e) => onInputChange(e, 'id')} hidden />
             <div className="field w-field col-12 md:col-12">
-              <label class="font-medium text-900">Chamado nº:</label>
+              <label className="font-medium text-900">Chamado nº:</label>
               <div className="p-inputgroup w-inputgroup-select">
                 <span className="p-inputgroup-addon">
                   <i className="pi pi-tag"></i>
@@ -166,7 +166,7 @@ const val = e.map(c => c.value)
               </div>
             </div>
             <div className="field w-field col-12 md:col-9">
-              <label class="font-medium text-900">Cliente:</label>
+              <label className="font-medium text-900">Cliente:</label>
               <div className="p-inputgroup w-inputgroup-select">
                 <span className="p-inputgroup-addon">
                   <i className="pi pi-building"></i>
@@ -180,7 +180,7 @@ const val = e.map(c => c.value)
               </div>
             </div>
             <div className="field w-field col-12 md:col-3">
-              <label class="font-medium text-900">KM previsto:</label>
+              <label className="font-medium text-900">KM previsto:</label>
               <div className="p-inputgroup">
                 <span className="p-inputgroup-addon">
                   <i className="pi pi-map-marker"></i>
@@ -189,7 +189,7 @@ const val = e.map(c => c.value)
               </div>
             </div>
             <div className="field w-field col-12 md:col-4">
-              <label class="font-medium text-900">Início previsto:</label>
+              <label className="font-medium text-900">Início previsto:</label>
               <div className="p-inputgroup">
                 <span className="p-inputgroup-addon">
                   <i className="pi pi-calendar-plus"></i>
@@ -198,7 +198,7 @@ const val = e.map(c => c.value)
               </div>
             </div>
             <div className="field w-field col-12 md:col-4">
-              <label class="font-medium text-900">Término previsto:</label>
+              <label className="font-medium text-900">Término previsto:</label>
               <div className="p-inputgroup">
                 <span className="p-inputgroup-addon">
                   <i className="pi pi-calendar-times"></i>
@@ -207,7 +207,7 @@ const val = e.map(c => c.value)
               </div>
             </div>
             <div className="field w-field col-12 md:col-4">
-              <label class="font-medium text-900">Turno de operação:</label>
+              <label className="font-medium text-900">Turno de operação:</label>
               <div className="p-inputgroup">
                 <span className="p-inputgroup-addon">
                   <i className="pi pi-sun"></i>
@@ -216,7 +216,7 @@ const val = e.map(c => c.value)
               </div>
             </div>
             <div className="field w-field col-12 md:col-12">
-              <label class="font-medium text-900">Técnicos relacionados:</label>
+              <label className="font-medium text-900">Técnicos relacionados:</label>
               <div className="p-inputgroup w-inputgroup-select">
                 <span className="p-inputgroup-addon">
                   <i className="pi pi-users"></i>
@@ -232,7 +232,7 @@ const val = e.map(c => c.value)
               </div>
             </div>
             <div className="field w-field col-12 md:col-12">
-              <label class="font-medium text-900">Observações/orientações referente ao serviço:</label>
+              <label className="font-medium text-900">Observações/orientações referente ao serviço:</label>
               <div className="p-inputgroup w-inputgroup-select">
                 <span className="p-inputgroup-addon">
                   <i className="pi pi-building"></i>
