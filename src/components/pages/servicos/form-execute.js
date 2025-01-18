@@ -18,7 +18,7 @@ import { ScrollPanel } from 'primereact/scrollpanel';
 import SignatureCanvas from 'react-signature-canvas'
 import { Divider } from '@mui/material';
 import { InputText } from 'primereact/inputtext';
-
+import { ProgressSpinner } from 'primereact/progressspinner';
 import { Toast } from 'primereact/toast';
 const steps = [
     {
@@ -35,11 +35,12 @@ const steps = [
     }
     ,
     {
-        id: 4,
+        id: 3,
         title: "VISUALIZAÇÃO"
     }
 ];
 export default function ExecuteOs(props) {
+
     const toast = useRef(null);
     const filesElement = useRef(null);
     //states
@@ -48,7 +49,6 @@ export default function ExecuteOs(props) {
     };
     console.log(props.registro)
     const [os, setOs] = useState(props.registro);
-    console.log(os)
     const [atendimentoOs, setAtendimentoOS] = useState(false)
     const [checked1, setChecked1] = useState(false);
     const [checked2, setChecked2] = useState(false);
@@ -60,7 +60,7 @@ export default function ExecuteOs(props) {
     const [registrosEquipmentosCliente, setRegistrosEquipmentosCliente] = useState([]);
     const [registrosPerifericos, setRegistrosPerifericos] = useState([]);
     const [registrosEquipmentosUsuario, setRegistrosEquipmentosUsario] = useState([]);
-
+    const [spinner, setSpinner] = useState(false);
     useEffect(() => {
         //console.log(props.registro.atendimento)
         if (props.registro.atendimento == null || props.registro.atendimento == 'NAO') {
@@ -155,7 +155,6 @@ export default function ExecuteOs(props) {
             }
         }
         if (currentStep == 2) {
-            console.log(os)
             let _validacao = []
             if (os.name_signature == null) { _validacao.push({ severity: 'info', summary: 'Pendente', detail: 'informe quem está assinando a OS', life: 3000 }) }
             if (os.assinatura == null) { _validacao.push({ severity: 'info', summary: 'Pendente', detail: 'A OS precisa ser assinada', life: 3000 }) }
@@ -163,6 +162,7 @@ export default function ExecuteOs(props) {
             if (_validacao.length == 0) {
                 axiosApi.patch('/update_order_service_assignature', os)
                     .then(function (response) {
+                        
                         if (response.data == 'sem visita') {
                             alert("PRIMEIRO ABRA UMA VISITA")
                         } else {
@@ -302,6 +302,10 @@ export default function ExecuteOs(props) {
     };
 
     const saveFiles = () => {
+        setSpinner(true);
+        setTimeout(() => {
+            setSpinner(false)
+          }, 2000);
         const dataForm = new FormData()
         dataForm.append("id", os.id)
         for (const file of filesElement.current.files) {
@@ -317,9 +321,11 @@ export default function ExecuteOs(props) {
                 .catch(function (error) {
                     console.log(error)
                 });
+                
         } else {
             alert('Selecione pelo ao menos 1 imagem')
         }
+        
     }
 
 
@@ -356,7 +362,7 @@ export default function ExecuteOs(props) {
 
     return (
         <>
-            <Toast ref={toast} />
+            <Toast ref={toast} position="bottom-right" />
             {/*
             <h1>Multi Steps Form</h1>
             <p className="step-guide">
@@ -421,8 +427,10 @@ export default function ExecuteOs(props) {
                                             </div>
                                         </div>
                                         <div className="field w-field col-12 md:col-12" hidden={atendimentoOs}>
-                                            <div className="p-inputgroup ">
+                                            <div className="p-inputgroup" style={{display: 'flex',justifyContent: 'center'}}>
+                                            
                                                 {
+                                                     spinner ? <ProgressSpinner hidden={!spinner} style={{display: 'masonry'}}/>: 
                                                     os.registro_fotograficos ?
                                                         os.registro_fotograficos.map((foto) =>
                                                             <>
@@ -581,16 +589,17 @@ export default function ExecuteOs(props) {
                                             </div>
                                             <div className="field w-field col-12 md:col-12">
                                                 <div className="p-inputgroup ">
-                                                    {
-                                                        os.registro_fotograficos ?
-                                                            os.registro_fotograficos.map((foto) =>
-                                                                <>
-                                                                    <img src={foto} alt="registros" width={'300px'} />
-                                                                    <Divider />
-                                                                </>
-                                                            )
-                                                            : <h7>Nenhuma imagem salva</h7>
-                                                    }
+                                                {
+                                                     spinner ? <ProgressSpinner hidden={!spinner} style={{display: 'masonry'}}/>: 
+                                                    os.registro_fotograficos ?
+                                                        os.registro_fotograficos.map((foto) =>
+                                                            <>
+                                                                <img src={foto} alt="registros" width={'300px'} />
+                                                                <Divider />
+                                                            </>
+                                                        )
+                                                        : <h7>Nenhuma imagem salva</h7>
+                                                }
                                                 </div>
                                             </div>
                                             <div className="field w-field col-12 md:col-12">
@@ -618,7 +627,7 @@ export default function ExecuteOs(props) {
                                     <div hidden={atendimentoOs}>
                                         <li className="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
                                             <div className="text-500 w-6 md:w-2 font-medium">motivo do não atendimento:</div>
-                                            <div className="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{os.motivo}</div>
+                                            <div className="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{os.motivo_nao_atendimento?os.motivo_nao_atendimento:'---'}</div>
                                         </li>
                                     </div>
                                     <div >
@@ -704,7 +713,7 @@ export default function ExecuteOs(props) {
                                 </div>
                             </>
                         )}
-                        {steps[currentStep].id === 4 && (
+                        {steps[currentStep].id === 3 && (
                             <>
                                 {'ainda estou desenvolvendo esta página '}
                             </>

@@ -4,6 +4,7 @@ import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
 import { TreeTable } from 'primereact/treetable';
 
+import { Toast } from 'primereact/toast';
 import { Sidebar } from 'primereact/sidebar';
 //IMPORTANTO RECURSOS DE FRAMEWORKS E BIBLIOTECAS
 import { axiosApi } from '../../../services/axios';
@@ -15,6 +16,8 @@ import ExecuteOs from './form-execute';
 export default function DataviewConteudo(props) {
     const [registros, setRegistros] = useState([]);
     const [loading, setLoading] = useState(true);
+  
+const toast = useRef(null);
     const buscarRegistros = () => {
         setLoading(true);
         axiosApi.get("/list_order_service_filter/" + props.data.id)
@@ -83,12 +86,14 @@ export default function DataviewConteudo(props) {
 
     const recebidoDoFilhoPatch = (registro) => {
         let _registros = [...registros];
-        let _registro = { registro };
-        const index = findIndexById(registro.id);
+        let _registro = registro ;
+        let index = findIndexById(registro.id);
         _registros[index] = _registro;
+        console.log(_registros)
         setRegistros(_registros);
         setVisibleExecuteOS(false)
-
+        toast.current.show({severity:'success', summary: 'Success Message', detail:<img src='https://cdn.pixabay.com/animation/2024/08/04/01/29/01-29-36-744_256.gif' alt="registros" width={'300px'} />, life: 1000});
+    
     }
     //função para retonar qual o indice do registro da tabela para alteracao
     const findIndexById = (id) => {
@@ -96,6 +101,7 @@ export default function DataviewConteudo(props) {
         for (let i = 0; i < registros.length; i++) {
             if (registros[i].id === id) {
                 index = i;
+                
                 break;
             }
         }
@@ -103,7 +109,9 @@ export default function DataviewConteudo(props) {
     }
     return (
         <>
+        <Toast ref={toast} position="bottom-right" className='toast-confete'/>
             <DataTable value={registros} responsiveLayout="scroll" className='data-table-os'>
+            <Column field="id" header="id" ></Column>
                 <Column field="placa" header="Placa/Frota" body={veiculoBodyTemplate}></Column>
                 <Column  header="Status" body={statusBodyTemplateAtividade}></Column>
                 <Column  header="Status" body={statusBodyTemplate}></Column>

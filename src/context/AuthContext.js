@@ -182,7 +182,7 @@ export const AuthProvider = ({ children }) => {
   // funcao para remover visita do local storage
   //funcao para sair
   const endVisit = async (form) => {
-
+console.log(form)
     try {
       //envio da solicitação usando o axios
       const response = await axiosApi.patch('/closed_visite', form)

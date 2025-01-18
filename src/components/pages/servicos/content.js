@@ -28,7 +28,6 @@ import { Panel } from 'primereact/panel';
 import { Divider } from 'primereact/divider';
 import { Inplace, InplaceDisplay, InplaceContent } from 'primereact/inplace';
 import { Dropdown } from 'primereact/dropdown';
-
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 
 import { useContext } from 'react';
@@ -353,20 +352,29 @@ const Content = () => {
 
 
   const fecharVisita = async () => {
+    let _validacao = []
+    if (registroVisit.alimentacao == null) { _validacao.push({ severity: 'info', summary: 'Pendente', detail: 'informe se foi necessário alimentação', life: 3000 }) }
+    if (registroVisit.hospedagem == null) { _validacao.push({ severity: 'info', summary: 'Pendente', detail: 'informe se foi necessário hospedagem', life: 3000 }) }
+    //validar materiais conforme tipo de os
+    if (_validacao.length == 0) {
+      endVisit(registroVisit)
+        .then((response) => {
+          //  setLayout(false)
+          visit = false
+          setVisibleVisita(false)
+          requisicao()
+          setRegistroVisit(emptyregistroVisit)
+          //toastBR("visita finalizada, até a próxima :)")
+        })
+        .catch(function (error) {
+          //  toast('algo errado')
+          console.log(error)
+        });
+    } else {
+      toast.current.show(_validacao);
+    }
 
-    endVisit(registroVisit)
-      .then((response) => {
-        //  setLayout(false)
-        visit = false
-        setVisibleVisita(false)
-        requisicao()
-        setRegistroVisit(emptyregistroVisit)
-        //toastBR("visita finalizada, até a próxima :)")
-      })
-      .catch(function (error) {
-        //  toast('algo errado')
-        console.log(error)
-      });
+
   }
 
   //--------------------------------------------------------------------------------------------------------------|
@@ -489,6 +497,7 @@ const Content = () => {
 
   return (
     <>
+     <Toast ref={toast} position="bottom-right" />
       <Toast ref={toastBR} position="bottom-right" />
       <div className="dataview">
         <div className="card dataview-card" style={{ backgroundColor: 'withe' }}>
@@ -629,7 +638,7 @@ const Content = () => {
                   <span className="p-inputgroup-addon">
                     <i className="pi pi-calendar-plus"></i>
                   </span>
-                  <InputText value={visit.inicio?new Date(visit.inicio).toLocaleString("pt-br"):''} disabled />
+                  <InputText value={visit.inicio ? <span>new Date(visit.inicio).toLocaleString("pt-br")</span> : <span>''</span>} disabled />
                 </div>
               </div>
               <div className="field w-field col-12 md:col-12">
