@@ -638,7 +638,7 @@ const Content = () => {
                   <span className="p-inputgroup-addon">
                     <i className="pi pi-calendar-plus"></i>
                   </span>
-                  <InputText value={visit.inicio ? <span>new Date(visit.inicio).toLocaleString("pt-br")</span> : <span>''</span>} disabled />
+                  <InputText value={registroVisit.inicio ? <span>new Date(registroVisit.inicio).toLocaleString("pt-br")</span> : <span>''</span>} disabled />
                 </div>
               </div>
               <div className="field w-field col-12 md:col-12">
