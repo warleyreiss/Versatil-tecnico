@@ -47,9 +47,9 @@ export default function ExecuteOs(props) {
     let emptyregistro = {
         id: null
     };
-    console.log(props.registro)
     const [os, setOs] = useState(props.registro);
     const [atendimentoOs, setAtendimentoOS] = useState(false)
+    const [TipoManutencao, setTipoManutencao] = useState(props.registro.tipo == 'MANUTENCAO')
     const [checked1, setChecked1] = useState(false);
     const [checked2, setChecked2] = useState(false);
     const [checked3, setChecked3] = useState(false);
@@ -62,7 +62,6 @@ export default function ExecuteOs(props) {
     const [registrosEquipmentosUsuario, setRegistrosEquipmentosUsario] = useState([]);
     const [spinner, setSpinner] = useState(false);
     useEffect(() => {
-        //console.log(props.registro.atendimento)
         if (props.registro.atendimento == null || props.registro.atendimento == 'NAO') {
             setAtendimentoOS(false)
             let _registro = { ...os };
@@ -121,7 +120,6 @@ export default function ExecuteOs(props) {
                         }
                     })
                     .catch(function (error) {
-                        console.log(error)
                     });
             } else {
                 toast.current.show(_validacao);
@@ -133,9 +131,11 @@ export default function ExecuteOs(props) {
             if (os.danos == null && os.violacao == 'SIM') { _validacao.push({ severity: 'info', summary: 'Pendente', detail: 'Informe se a violação causou danos', life: 3000 }) }
             if (os.descricao_violacao == null && os.violacao == 'SIM') { _validacao.push({ severity: 'info', summary: 'Pendente', detail: 'Informe o que foi violado', life: 3000 }) }
             if (os.registro_fotograficos == null && os.violacao == 'SIM') { _validacao.push({ severity: 'info', summary: 'Pendente', detail: 'Anexe pelo ao menos 1 foto', life: 3000 }) }
-            if (os.efeito_falha == null) { _validacao.push({ severity: 'info', summary: 'Pendente', detail: 'informe efeito da falha', life: 3000 }) }
-            if (os.causa_falha == null) { _validacao.push({ severity: 'info', summary: 'Pendente', detail: 'informe causa da falha', life: 3000 }) }
-            if (os.responsavel_falha == null) { _validacao.push({ severity: 'info', summary: 'Pendente', detail: 'informe responavel da falha', life: 3000 }) }
+            if (TipoManutencao) {
+                if (os.efeito_falha == null) { _validacao.push({ severity: 'info', summary: 'Pendente', detail: 'informe efeito da falha', life: 3000 }) }
+                if (os.causa_falha == null) { _validacao.push({ severity: 'info', summary: 'Pendente', detail: 'informe causa da falha', life: 3000 }) }
+                if (os.responsavel_falha == null) { _validacao.push({ severity: 'info', summary: 'Pendente', detail: 'informe responavel da falha', life: 3000 }) }
+            }
             //validar materiais conforme tipo de os
             if (_validacao.length == 0) {
                 axiosApi.patch('/update_order_service_execute', os)
@@ -147,9 +147,8 @@ export default function ExecuteOs(props) {
                         }
                     })
                     .catch(function (error) {
-                        console.log(error)
                     });
-                setCurrentStep((prevState) => prevState + 1);
+                // setCurrentStep((prevState) => prevState + 1);
             } else {
                 toast.current.show(_validacao);
             }
@@ -162,7 +161,7 @@ export default function ExecuteOs(props) {
             if (_validacao.length == 0) {
                 axiosApi.patch('/update_order_service_assignature', os)
                     .then(function (response) {
-                        
+
                         if (response.data == 'sem visita') {
                             alert("PRIMEIRO ABRA UMA VISITA")
                         } else {
@@ -170,7 +169,6 @@ export default function ExecuteOs(props) {
                         }
                     })
                     .catch(function (error) {
-                        console.log(error)
                     });
             } else {
                 toast.current.show(_validacao);
@@ -244,10 +242,10 @@ export default function ExecuteOs(props) {
         { label: 'NÃO, ATENDIMENTO FRUSTADO', value: 'NAO' }
     ];
     const motivo = [
-        { label: 'VEÍCULO COM AVARIAS', value: 'VEICULO COM AVARIAS' },
-        { label: 'VEÍCULO EM MANUTENÇÃO', value: 'VEICULO EM MANUTENCAO' },
-        { label: 'VEÍCULO INDISPONÍVEL', value: 'VEICULO INDISPONIVEL' },
-        { label: 'VEÍCULO PARADO', value: 'VEICULO PARADO' }
+        { label: 'VEÍCULO COM AVARIAS (parado, sem condições de uso)', value: 'VEICULO COM AVARIAS' },
+        { label: 'VEÍCULO EM MANUTENÇÃO (manutenção em andamento)', value: 'VEICULO EM MANUTENCAO' },
+        { label: 'VEÍCULO INDISPONÍVEL (fora da garagem)', value: 'VEICULO INDISPONIVEL' },
+        { label: 'VEÍCULO PARADO (sem uso no pátio)', value: 'VEICULO PARADO' }
     ];
     const confirmacao2 = [
         { label: 'SIM', value: 'SIM' },
@@ -305,7 +303,7 @@ export default function ExecuteOs(props) {
         setSpinner(true);
         setTimeout(() => {
             setSpinner(false)
-          }, 2000);
+        }, 2000);
         const dataForm = new FormData()
         dataForm.append("id", os.id)
         for (const file of filesElement.current.files) {
@@ -319,13 +317,12 @@ export default function ExecuteOs(props) {
                     setOs(_registro)
                 })
                 .catch(function (error) {
-                    console.log(error)
                 });
-                
+
         } else {
             alert('Selecione pelo ao menos 1 imagem')
         }
-        
+
     }
 
 
@@ -427,18 +424,18 @@ export default function ExecuteOs(props) {
                                             </div>
                                         </div>
                                         <div className="field w-field col-12 md:col-12" hidden={atendimentoOs}>
-                                            <div className="p-inputgroup" style={{display: 'flex',justifyContent: 'center'}}>
-                                            
+                                            <div className="p-inputgroup" style={{ display: 'flex', justifyContent: 'center' }}>
+
                                                 {
-                                                     spinner ? <ProgressSpinner hidden={!spinner} style={{display: 'masonry'}}/>: 
-                                                    os.registro_fotograficos ?
-                                                        os.registro_fotograficos.map((foto) =>
-                                                            <>
-                                                                <img src={foto} alt="registros" width={'300px'} />
-                                                                <Divider />
-                                                            </>
-                                                        )
-                                                        : <h7>Nenhuma imagem salva</h7>
+                                                    spinner ? <ProgressSpinner hidden={!spinner} style={{ display: 'masonry' }} /> :
+                                                        os.registro_fotograficos ?
+                                                            os.registro_fotograficos.map((foto) =>
+                                                                <>
+                                                                    <img src={foto} alt="registros" width={'300px'} />
+                                                                    <Divider />
+                                                                </>
+                                                            )
+                                                            : <h7>Nenhuma imagem salva</h7>
                                                 }
                                             </div>
                                         </div>
@@ -501,7 +498,7 @@ export default function ExecuteOs(props) {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="card " >
+                                <div className="card " hidden={!TipoManutencao}>
                                     <div className="p-fluid w-form" >
                                         <div className="p-fluid grid">
                                             {/* <ScrollPanel style={{ width: '100%', height: '200px' }} className="custombar1">*/}
@@ -589,17 +586,17 @@ export default function ExecuteOs(props) {
                                             </div>
                                             <div className="field w-field col-12 md:col-12">
                                                 <div className="p-inputgroup ">
-                                                {
-                                                     spinner ? <ProgressSpinner hidden={!spinner} style={{display: 'masonry'}}/>: 
-                                                    os.registro_fotograficos ?
-                                                        os.registro_fotograficos.map((foto) =>
-                                                            <>
-                                                                <img src={foto} alt="registros" width={'300px'} />
-                                                                <Divider />
-                                                            </>
-                                                        )
-                                                        : <h7>Nenhuma imagem salva</h7>
-                                                }
+                                                    {
+                                                        spinner ? <ProgressSpinner hidden={!spinner} style={{ display: 'masonry' }} /> :
+                                                            os.registro_fotograficos ?
+                                                                os.registro_fotograficos.map((foto) =>
+                                                                    <>
+                                                                        <img src={foto} alt="registros" width={'300px'} />
+                                                                        <Divider />
+                                                                    </>
+                                                                )
+                                                                : <h7>Nenhuma imagem salva</h7>
+                                                    }
                                                 </div>
                                             </div>
                                             <div className="field w-field col-12 md:col-12">
@@ -627,7 +624,7 @@ export default function ExecuteOs(props) {
                                     <div hidden={atendimentoOs}>
                                         <li className="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
                                             <div className="text-500 w-6 md:w-2 font-medium">motivo do não atendimento:</div>
-                                            <div className="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{os.motivo_nao_atendimento?os.motivo_nao_atendimento:'---'}</div>
+                                            <div className="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{os.motivo_nao_atendimento ? os.motivo_nao_atendimento : '---'}</div>
                                         </li>
                                     </div>
                                     <div >
@@ -647,6 +644,7 @@ export default function ExecuteOs(props) {
                                             <div className="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{os.desc_violacao ? os.desc_violacao : '---'}</div>
                                         </li>
                                     </div>
+                                    <div hidden={!TipoManutencao}>
                                     <li className="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
                                         <div className="text-500 w-6 md:w-2 font-medium">Efeito da falha?:</div>
                                         <div className="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{os.efeito_falha ? os.efeito_falha : '---'}</div>
@@ -659,6 +657,7 @@ export default function ExecuteOs(props) {
                                         <div className="text-500 w-6 md:w-2 font-medium">Responsável da falha?:</div>
                                         <div className="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{os.responsavel_falha ? os.responsavel_falha : '--'}</div>
                                     </li>
+                                    </div>
                                     <li className="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
                                         <div className="text-500 w-6 md:w-2 font-medium">Equipamento utilizado?:</div>
                                         <div className="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{os.material_usado ?? '--'}</div>

@@ -89,7 +89,6 @@ const toast = useRef(null);
         let _registro = registro ;
         let index = findIndexById(registro.id);
         _registros[index] = _registro;
-        console.log(_registros)
         setRegistros(_registros);
         setVisibleExecuteOS(false)
         toast.current.show({severity:'success', summary: 'Success Message', detail:<img src='https://cdn.pixabay.com/animation/2024/08/04/01/29/01-29-36-744_256.gif' alt="registros" width={'300px'} />, life: 1000});

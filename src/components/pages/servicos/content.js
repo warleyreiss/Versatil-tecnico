@@ -96,10 +96,9 @@ const Content = () => {
           setRegistros(datasource.current.slice(0, rows.current))
         })
         .catch(function (error) {
-          console.log(error)
         });
     } else {
-      console.log('nao tem')
+     
       axiosApi.get("/list_service")
         .then((response) => {
           setRegistrosSemFiltros(response.data)
@@ -270,7 +269,6 @@ const Content = () => {
   }
   //função que recebe os dados de um novo cadastro
   const recebidoDoFilhoPost = (registro) => {
-    console.log(registro)
     let _registros = [...registros];
     let _registro = { ...registro };
     _registro.id = registro.id
@@ -336,7 +334,6 @@ const Content = () => {
 
 
   const abrirVisita = (servico) => {
-    console.log(servico)
     const id = { servico };
     axiosApi.post('/open_visite', id)
       .then(function (response) {
@@ -346,7 +343,6 @@ const Content = () => {
         requisicao()
       })
       .catch(function (error) {
-        console.log(error)
       });
   }
 
@@ -367,8 +363,6 @@ const Content = () => {
           //toastBR("visita finalizada, até a próxima :)")
         })
         .catch(function (error) {
-          //  toast('algo errado')
-          console.log(error)
         });
     } else {
       toast.current.show(_validacao);
@@ -426,7 +420,7 @@ const Content = () => {
           localStorage.setItem("@Auth:occurrence", undefined);
         }
       } catch (error) {
-        //console.log(error);
+        
       }
       refresOccurrenceDialog()
       //registroOccurrence(emptyregistro)

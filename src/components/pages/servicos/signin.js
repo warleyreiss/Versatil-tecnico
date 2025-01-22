@@ -22,7 +22,6 @@ function Signin() {
 
   const { signIn } = useContext(AuthContext)
   const { signed } = useContext(AuthContext)
-  console.log('na pagina login signed é:' + signed)
   const { register, handleSubmit, reset, setValue/*, formStates:{erros}*/ } = useForm();
 
   const form = async (formContent) => {

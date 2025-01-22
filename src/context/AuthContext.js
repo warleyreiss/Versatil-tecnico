@@ -154,7 +154,7 @@ export const AuthProvider = ({ children }) => {
         console.log(occurrence)
       }
     } catch (error) {
-      alert(error.response.data.msg_alert);
+      console.log(error.response.data);
     }
   };
 
