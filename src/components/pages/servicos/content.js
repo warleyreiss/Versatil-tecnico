@@ -98,9 +98,9 @@ const Content = () => {
         .catch(function (error) {
         });
     } else {
-     
       axiosApi.get("/list_service")
         .then((response) => {
+          console.log(response.data)
           setRegistrosSemFiltros(response.data)
           datasource.current = response.data
           setTotalRecords(response.data.length)
@@ -149,7 +149,9 @@ const Content = () => {
       <div hidden={!visit}>
         <Button label={'Visita aberta'} onClick={() => setVisibleVisita(true)} className='p-button-success p-button-outlined' />
       </div>
-      {/*  <Button icon="pi pi-th-large" onClick={() => setVisibleMenuRight(true)} className=' p-button-primary' style={{ marginLeft: '10px' }} />*/}
+      <div hidden={visit}>
+     <Button icon="pi pi-plus" onClick={() => openNew(true)} className=' p-button-primary' style={{ marginLeft: '10px' }} />
+      </div>
     </React.Fragment>
   );
 
@@ -185,7 +187,7 @@ const Content = () => {
           <DataviewConteudo data={data} className='card-dataview-body-panel-os-content' style={{ border: 'none' }} />
         </Panel>
         <div className="text-left card-dataview-body-obs">
-          {data.observacoes ? data.observacoes : "Sem orientações"}
+          {data.observacao ? data.observacao : "Sem orientações"}
         </div>
         <div className="text-center card-dataview-footer-opcoes">
           <div className="flex justify-content-end flex-wrap">
@@ -210,7 +212,7 @@ const Content = () => {
         <DataviewConteudo data={data} className='card-dataview-body-panel-os-content' style={{ border: 'none' }} />
 
         <div className="text-left card-dataview-body-obs">
-          {data.observacoes ? data.observacoes : "Sem orientações"}
+          {data.observacao ? data.observacao: "Sem orientações"}
         </div>
         <div className="text-center card-dataview-footer-opcoes">
           <div className="flex justify-content-end flex-wrap">
@@ -269,13 +271,14 @@ const Content = () => {
   }
   //função que recebe os dados de um novo cadastro
   const recebidoDoFilhoPost = (registro) => {
+    console.log('recebido aqui',registro)
     let _registros = [...registros];
     let _registro = { ...registro };
     _registro.id = registro.id
     _registros.push(_registro);
     setRegistro(emptyregistro);
     setVisibleCRUD(false)
-    setVisibleMenuRight(false)
+    requisicao()
   }
   //função que recebi os dados de um cadastro editado
   const recebidoDoFilhoPatch = (registro) => {
@@ -283,6 +286,7 @@ const Content = () => {
     let _registro = { ...registro };
     const index = findIndexById(registro.id);
     _registros[index] = _registro;
+    console.log(_registros)
     setRegistros(_registros);
     setRegistro(emptyregistro);
     setVisibleCRUD(false)
@@ -500,124 +504,8 @@ const Content = () => {
             totalRecords={totalRecords} first={first} onPage={onPage} loading={loading} />
         </div>
       </div>
-      <Sidebar className='w-sidebar-right w-sidebar-right-menu ' header={<h3>O que gostaria de fazer?</h3>} visible={visibleMenuRight} position="right" blockScroll onHide={() => setVisibleMenuRight(false)} style={{ width: '550px' }}>
-        <div className="card w-card" >
-          <Divider align="right" type="dashed">
-            <b>Tarefas rápidas</b>
-          </Divider>
-          <div className="grid p-card-grid">
-            <div className="col-fixed p-card-grid-col">
-              <Link className='p-card-grid-col-link' onClick={() => openNew(true)} >
-                <div className="grid nested-grid p-card-grid-col-link-grid">
-                  <div className="grid p-card-grid-col-link-grid-grid">
-                    <div className="col-10 p-card-grid-col-link-grid-grid-title">
-                      Novo Serviço
-                    </div>
-                    <div className="col-2 p-card-grid-col-link-grid-grid-icon">
-                      <i className="pi pi-plus"></i>
-                    </div>
-                    <div className="col-12 p-card-grid-col-link-grid-grid-desc">
-                      Cadastre um novo serviço para sua equipe interna
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            </div>
-          </div>
-          <Divider align="right" type="dashed">
-            <b>Históricos e registros</b>
-          </Divider>
-          <div className="grid p-card-grid">
-            <div className="col-fixed p-card-grid-col" style={{ height: '150px' }}>
-              <div className="grid nested-grid p-card-grid-col-link-grid">
-                <div className="grid p-card-grid-col-link-grid-grid">
-                  <div className="col-10 p-card-grid-col-link-grid-grid-title">
-                    Histórico serviços
-                  </div>
-                  <div className="col-2 p-card-grid-col-link-grid-grid-icon">
-                    <i className="pi pi-history"></i>
-                  </div>
 
-                  <Inplace closable className='p-inplace-mini-form'>
-                    <InplaceDisplay>
-                      {<div className="col-12 p-card-grid-col-link-grid-grid-desc" >
-                        Liste todo extrato de informações referente aos serviços realizados
-                      </div>}
-                    </InplaceDisplay>
-                    <InplaceContent className='ola'>
-
-                    </InplaceContent>
-                  </Inplace>
-                </div>
-              </div>
-            </div>
-            <div className="col-fixed p-card-grid-col" style={{ height: '150px' }}>
-              <div className="grid nested-grid p-card-grid-col-link-grid">
-                <div className="grid p-card-grid-col-link-grid-grid">
-                  <div className="col-10 p-card-grid-col-link-grid-grid-title">
-                    Histórico visitas
-                  </div>
-                  <div className="col-2 p-card-grid-col-link-grid-grid-icon">
-                    <i className="pi pi-history"></i>
-                  </div>
-
-                  <Inplace closable className='p-inplace-mini-form'>
-                    <InplaceDisplay>
-                      {<div className="col-12 p-card-grid-col-link-grid-grid-desc" style={{ height: '100px' }}>
-                        Liste todo extrato de informações referente as visitas realziadas
-                      </div>}
-                    </InplaceDisplay>
-                    <InplaceContent className='ola'>
-                    </InplaceContent>
-                  </Inplace>
-                </div>
-              </div>
-            </div>
-          </div>
-
-
-          <Divider align="right" type="dashed">
-            <b>Atalhos úteis</b>
-          </Divider>
-          <div className="grid p-card-grid">
-            <div className="col-fixed p-card-grid-col">
-              <Link className='p-card-grid-col-link' onClick={() => openNew(true)} >
-                <div className="grid nested-grid p-card-grid-col-link-grid">
-                  <div className="grid p-card-grid-col-link-grid-grid">
-                    <div className="col-10 p-card-grid-col-link-grid-grid-title">
-                      Tickets pendentes
-                    </div>
-                    <div className="col-2 p-card-grid-col-link-grid-grid-icon">
-                      <i className="pi pi-stopwatch"></i>
-                    </div>
-                    <div className="col-12 p-card-grid-col-link-grid-grid-desc">
-                      Veja os tickets pendentes de aprovação ou retornados
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            </div>
-            <div className="col-fixed p-card-grid-col">
-              <Link className='p-card-grid-col-link' onClick={() => openNew(true)} >
-                <div className="grid nested-grid p-card-grid-col-link-grid">
-                  <div className="grid p-card-grid-col-link-grid-grid">
-                    <div className="col-10 p-card-grid-col-link-grid-grid-title">
-                      Meu estoque
-                    </div>
-                    <div className="col-2 p-card-grid-col-link-grid-grid-icon">
-                      <i className="pi pi-th-large"></i>
-                    </div>
-                    <div className="col-12 p-card-grid-col-link-grid-grid-desc">
-                      Controle os equipamentos que estão em sua posse
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </Sidebar>
-      <Sidebar className='w-sidebar-right' header={<h3>{nomePagina.toUpperCase()}</h3>} visible={visibleCRUD} position="right" blockScroll onHide={() => closedNew()} style={{ width: '100em' }}>
+      <Sidebar className='w-sidebar-right' header={<h3>Cadastrar novo serviço</h3>} visible={visibleCRUD} position="right" blockScroll onHide={() => closedNew()} style={{ width: '100em' }}>
         <ServicosCru registro={registro} filhoParaPaiPost={recebidoDoFilhoPost} filhoParaPaiPatch={recebidoDoFilhoPatch} />
       </Sidebar>
 
@@ -625,7 +513,7 @@ const Content = () => {
         <div className="card w-card border-top-1 border-300" >
           <div className="p-fluid w-form" >
             <div className="p-fluid grid">
-              <InputText value={registroVisit.id} hidden />
+             {/* <InputText value={registroVisit.id} hidden />
               <div className="field w-field col-12 md:col-12">
                 <label className="font-medium text-900">Início:</label>
                 <div className="p-inputgroup input-transparent">
@@ -644,6 +532,7 @@ const Content = () => {
                   <InputText value='' disabled />
                 </div>
               </div>
+              */}
               <div className="field w-field col-12 md:col-12">
                 <label className="font-medium text-900">Distância total prevista:</label>
                 <div className="p-inputgroup input-transparent">

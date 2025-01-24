@@ -35,12 +35,12 @@ import { Link } from 'react-router-dom';
 
 function ServicosCru(props) {
 
+
   //STATES PARA FUNCIONAMENTO GERAL DA PAGINA
   const [loading, setLoading] = useState(false);
   const nomePagina = 'Cadastros de Servços'
 
-
-  const toast = useRef(null);
+  const toastBR = useRef(null);
 
   //FUNÇÃO PARA BUSCAR REGISTROS DO BANCO DE DADOS-------------------------------------------------------------------|
 
@@ -74,7 +74,6 @@ function ServicosCru(props) {
     buscarRegistros()
   }, [])
   //-------------------------------------------------------------------------------------------------------------|
-
   //FORMULARIO CRUD ----------------------------------------------------------------------------------------------|
   //funções de preenchimento do formulario
   const onInputChange = (e, name) => {
@@ -98,8 +97,8 @@ function ServicosCru(props) {
   }
 
   const onInputMultiSelectChange = (e, name) => {
-    
-const val = e.map(c => c.value)
+
+    const val = e.map(c => c.value)
     let _registro = { ...registro };
     _registro[`${name}`] = val;
     setRegistro(_registro);
@@ -114,42 +113,63 @@ const val = e.map(c => c.value)
 
   //envio do formulario CRUD
   const saveRegistro = () => {
-    if (registro.cliente_id) {
-      if (registro.id) {
+    let _registro = { ...registro };
+    _registro[`usuario_id`] = false;
+    let _validacao = []
+    if (_registro.chamado == null ||_registro.chamado == '') { _validacao.push({ severity: 'info', summary: 'Pendente', detail: 'informe número do chamado', life: 3000 }) }
+    if (_registro.cliente_id == null || _registro.cliente_id == '') { _validacao.push({ severity: 'info', summary: 'Pendente', detail: 'informe o nome do cliente', life: 3000 }) }
+    if (_registro.inicio == null || _registro.inicio =='') { _validacao.push({ severity: 'info', summary: 'Pendente', detail: 'informe a data prevista para início', life: 3000 }) }
+    if (_registro.termino == null ||_registro.termino == '') { _validacao.push({ severity: 'info', summary: 'Pendente', detail: 'informe a data prevista para término', life: 3000 }) }
+    if (_registro.turno == null ||_registro.turno == '') { _validacao.push({ severity: 'info', summary: 'Pendente', detail: 'informe o turno de trablho', life: 3000 }) }
+    
+    if (_registro.km == null ||_registro.km == '') { _validacao.push({ severity: 'info', summary: 'Pendente', detail: 'informe a previsão de km à ser percorrido', life: 3000 }) }
+    if (_registro.usuario_id2 == null ||_registro.usuario_id2==[] || registro.usuario_id2[0]==null) { _validacao.push({ severity: 'info', summary: 'Pendente', detail: 'informe pelo ao menos 1 técnico no serviço', life: 3000 }) }
+    if (_validacao.length == 0) {
+      if (_registro.id) {
 
-        axiosApi.patch("/update_service", registro)
+        axiosApi.patch("/update_service", _registro)
           .then((response) => {
+            
             props.filhoParaPaiPatch(response.data)
-            toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Veículo alterado!', life: 3000 });
+            toastBR.current.show({ severity: 'success', summary: 'Successo', detail: 'Serviço editado', life: 3000 });
           })
           .catch(function (error) {
-            toast.current.show({ severity: 'error', summary: 'Successful', detail: 'Tente novamente!', life: 3000 });
+            toastBR.current.show({ severity: 'error', summary: 'Erro', detail: 'Tente novamente!', life: 3000 });
           });
       }
       else {
-       axiosApi.post("/create_service", registro)
+        axiosApi.post("/create_service", _registro)
+    
           .then((response) => {
             props.filhoParaPaiPost(response.data)
-
+            toastBR.current.show({ severity: 'success', summary: 'Successo', detail: 'Serviço criado', life: 3000 });
           })
           .catch(function (error) {
+            toastBR.current.show({ severity: 'error', summary: 'Erro', detail: 'Tente novamente!', life: 3000 });
           });
-      
-      }
 
+      }
+    } else {
+      toastBR.current.show(_validacao);
     }
-  };
+
+
+
+
+  }
+
 
 
   return (
     <>
+      <Toast ref={toastBR} position="bottom-right" />
       <div className="card w-card" >
         <div className="p-fluid w-form" >
           <div className="p-fluid grid">
             <InputText value={registro.id} onChange={(e) => onInputChange(e, 'id')} hidden />
             <div className="field w-field col-12 md:col-12">
-              <label className="font-medium text-900">Chamado nº:</label>
-              <div className="p-inputgroup w-inputgroup-select">
+              <label class="font-medium text-900">Chamado nº:</label>
+              <div className="p-inputgroup">
                 <span className="p-inputgroup-addon">
                   <i className="pi pi-tag"></i>
                 </span>
@@ -157,7 +177,7 @@ const val = e.map(c => c.value)
               </div>
             </div>
             <div className="field w-field col-12 md:col-9">
-              <label className="font-medium text-900">Cliente:</label>
+              <label class="font-medium text-900">Cliente:</label>
               <div className="p-inputgroup w-inputgroup-select">
                 <span className="p-inputgroup-addon">
                   <i className="pi pi-building"></i>
@@ -171,16 +191,16 @@ const val = e.map(c => c.value)
               </div>
             </div>
             <div className="field w-field col-12 md:col-3">
-              <label className="font-medium text-900">KM previsto:</label>
+              <label class="font-medium text-900">KM previsto:</label>
               <div className="p-inputgroup">
                 <span className="p-inputgroup-addon">
                   <i className="pi pi-map-marker"></i>
                 </span>
-                <InputNumber value={registro.km} onChange={(e) => onInputChange(e, 'km')} mode="decimal" useGrouping={false} />
+                <InputNumber value={registro.km} onChange={(e) => onInputNumberChange(e, 'km')}  useGrouping={false} />
               </div>
             </div>
             <div className="field w-field col-12 md:col-4">
-              <label className="font-medium text-900">Início previsto:</label>
+              <label class="font-medium text-900">Início previsto:</label>
               <div className="p-inputgroup">
                 <span className="p-inputgroup-addon">
                   <i className="pi pi-calendar-plus"></i>
@@ -189,7 +209,7 @@ const val = e.map(c => c.value)
               </div>
             </div>
             <div className="field w-field col-12 md:col-4">
-              <label className="font-medium text-900">Término previsto:</label>
+              <label class="font-medium text-900">Término previsto:</label>
               <div className="p-inputgroup">
                 <span className="p-inputgroup-addon">
                   <i className="pi pi-calendar-times"></i>
@@ -198,7 +218,7 @@ const val = e.map(c => c.value)
               </div>
             </div>
             <div className="field w-field col-12 md:col-4">
-              <label className="font-medium text-900">Turno de operação:</label>
+              <label class="font-medium text-900">Turno de operação:</label>
               <div className="p-inputgroup">
                 <span className="p-inputgroup-addon">
                   <i className="pi pi-sun"></i>
@@ -207,28 +227,28 @@ const val = e.map(c => c.value)
               </div>
             </div>
             <div className="field w-field col-12 md:col-12">
-              <label className="font-medium text-900">Técnicos relacionados:</label>
+              <label class="font-medium text-900">Técnicos relacionados:</label>
               <div className="p-inputgroup w-inputgroup-select">
                 <span className="p-inputgroup-addon">
                   <i className="pi pi-users"></i>
                 </span>
                 <Select
 
-                  //  defaultValue={registro.usuario_id.map(sup => ({ value: sup }))}
+                  //  defaultValue={registro.usuario_id.map(sup => ({ value: sup }))} registros.filter(val => val.id !== data.id);
                   options={registrosTecnicos.map(sup => ({ value: sup.id, label: sup.nome }))}
-                  onChange={(e) => { onInputMultiSelectChange(e, 'usuario_id') }}
+                  onChange={(e) => { onInputMultiSelectChange(e, 'usuario_id2') }}
                   placeholder=''
                   isMulti
                 />
               </div>
             </div>
             <div className="field w-field col-12 md:col-12">
-              <label className="font-medium text-900">Observações/orientações referente ao serviço:</label>
+              <label class="font-medium text-900">Observações/orientações referente ao serviço:</label>
               <div className="p-inputgroup w-inputgroup-select">
                 <span className="p-inputgroup-addon">
                   <i className="pi pi-building"></i>
                 </span>
-                <InputTextarea value={registro.observacoes} onChange={(e) => onInputChange(e, 'observacoes')} rows={2} cols={30} />
+                <InputTextarea value={registro.observacao} onChange={(e) => onInputChange(e, 'observacao')} rows={2} cols={30} />
               </div>
             </div>
             <div className="field w-field col-12 md:col-12">
