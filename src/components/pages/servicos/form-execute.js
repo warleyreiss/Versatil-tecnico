@@ -113,8 +113,10 @@ export default function ExecuteOs(props) {
                             alert("PRIMEIRO ABRA UMA VISITA")
                         } else {
                             if (os.atendimento == 'SIM') {
+                                props.recebidoDoFilhoProximo(response.data)
                                 setCurrentStep((prevState) => prevState + 1);
                             } if (os.atendimento == 'NAO') {
+                                props.recebidoDoFilhoProximo(response.data)
                                 setCurrentStep((prevState) => prevState + 2);
                             }
                         }
@@ -143,6 +145,7 @@ export default function ExecuteOs(props) {
                         if (response.data == 'sem visita') {
                             alert("PRIMEIRO ABRA UMA VISITA")
                         } else {
+                            props.recebidoDoFilhoProximo(response.data)
                             setCurrentStep((prevState) => prevState + 1);
                         }
                     })
@@ -265,11 +268,11 @@ export default function ExecuteOs(props) {
     const causaFalha = [
         { label: 'CHICOTE DANIFICADO', value: 'CHICOTE DANIFICADO' },
         { label: 'LEITORA DANIFICADA', value: 'LEITORA DANIFICADA' },
-        { label: 'MODULO COM AVARIA', value: 'MÓDULO COM AVARIA' },
-        { label: 'CAMERA ADAS COM AVARIA', value: 'CAMERA ADAS COM AVARIA' },
-        { label: 'LEITORA DE AUDIO COM AVARIA', value: 'LEITORA DE AUDIO COM AVARIA' },
-        { label: 'BUZZER COM AVARIA', value: 'BUZZER COM AVARIA' },
-        { label: 'SD CARD CM AVARIA', value: 'CAMERA ADAS COM AVARIA' },
+        { label: 'MODULO COM DEFEITO', value: 'MÓDULO COM DEFEITO' },
+        { label: 'CAMERA ADAS COM DEFEITO', value: 'CAMERA ADAS COM DEFEITO' },
+        { label: 'LEITORA DE AUDIO COM DEFEITO', value: 'LEITORA DE AUDIO COM DEFEITO' },
+        { label: 'BUZZER COM DEFEITO', value: 'BUZZER COM DEFEITO' },
+        { label: 'SD CARD COM DEFEITO', value: 'CAMERA ADAS COM DEFEITO' },
         { label: 'CONFIGURACAO IRREGULAR', value: 'CONFIGURACAO IRREGULAR' },
         { label: 'SCRIPT DESATUALIZADO', value: 'SCRIPT DESATUALIZADO' },
     ];
@@ -279,25 +282,6 @@ export default function ExecuteOs(props) {
         { label: 'EQUIPAMENTO', value: 'EQUIPAMENTO' },
         { label: 'DESENVOLVIMENTO', value: 'DESENVOLVIMENTO' }
     ];
-
-
-    //envio do formulario CRUD
-    const saveRegistro = () => {
-
-        /*
-                if (os.id) {
-                    axiosApi.patch("/update_service", os)
-                        .then((response) => {
-                            console.log('editado')
-                            //props.filhoParaPaiPatch(response.data)
-                            console.log(response.data)
-                        })
-                        .catch(function (error) {
-                            console.log(error)
-                        });
-                }
-                        */
-    };
 
     const saveFiles = () => {
         setSpinner(true);
@@ -645,18 +629,18 @@ export default function ExecuteOs(props) {
                                         </li>
                                     </div>
                                     <div hidden={!TipoManutencao}>
-                                    <li className="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
-                                        <div className="text-500 w-6 md:w-2 font-medium">Efeito da falha?:</div>
-                                        <div className="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{os.efeito_falha ? os.efeito_falha : '---'}</div>
-                                    </li>
-                                    <li className="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
-                                        <div className="text-500 w-6 md:w-2 font-medium">Causa da falha?:</div>
-                                        <div className="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{os.causa_falha ? os.causa_falha : '---'}</div>
-                                    </li>
-                                    <li className="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
-                                        <div className="text-500 w-6 md:w-2 font-medium">Responsável da falha?:</div>
-                                        <div className="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{os.responsavel_falha ? os.responsavel_falha : '--'}</div>
-                                    </li>
+                                        <li className="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
+                                            <div className="text-500 w-6 md:w-2 font-medium">Efeito da falha?:</div>
+                                            <div className="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{os.efeito_falha ? os.efeito_falha : '---'}</div>
+                                        </li>
+                                        <li className="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
+                                            <div className="text-500 w-6 md:w-2 font-medium">Causa da falha?:</div>
+                                            <div className="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{os.causa_falha ? os.causa_falha : '---'}</div>
+                                        </li>
+                                        <li className="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
+                                            <div className="text-500 w-6 md:w-2 font-medium">Responsável da falha?:</div>
+                                            <div className="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{os.responsavel_falha ? os.responsavel_falha : '--'}</div>
+                                        </li>
                                     </div>
                                     <li className="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
                                         <div className="text-500 w-6 md:w-2 font-medium">Equipamento utilizado?:</div>

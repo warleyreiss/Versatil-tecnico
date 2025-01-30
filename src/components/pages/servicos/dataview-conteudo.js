@@ -94,6 +94,14 @@ export default function DataviewConteudo(props) {
         toast.current.show({ severity: 'success', summary: 'Success Message', detail: <img src='https://cdn.pixabay.com/animation/2024/08/04/01/29/01-29-36-744_256.gif' alt="registros" width={'300px'} />, life: 1000 });
 
     }
+    const recebidoDoFilhoProximo= (registro) => {
+        console.log(registro)
+        let _registros = [...registros];
+        let _registro = registro;
+        let index = findIndexById(registro.id);
+        _registros[index] = _registro;
+        setRegistros(_registros);
+    }
     //função para retonar qual o indice do registro da tabela para alteracao
     const findIndexById = (id) => {
         let index = -1;
@@ -157,7 +165,7 @@ export default function DataviewConteudo(props) {
                 <ServicosOS registro={props.data.id} filhoParaPaiPostOS={recebidoDoFilhoPostOS} />
             </Sidebar>
             <Sidebar className='w-sidebar-os' header={<h3 style={{color:'black'}}>{'Execução os: ' + registroExecucao.id}</h3>} visible={visibleExecuteOS} fullScreen blockScroll={true} dispensável={false} onHide={() => fecharOs()} >
-                <ExecuteOs registro={registroExecucao} filhoParaPaiPatch={recebidoDoFilhoPatch} />
+                <ExecuteOs registro={registroExecucao} filhoParaPaiPatch={recebidoDoFilhoPatch} recebidoDoFilhoProximo={recebidoDoFilhoProximo}/>
             </Sidebar>
 
         </>

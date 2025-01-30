@@ -170,7 +170,7 @@ const Content = () => {
     return (
       <div>
         <span className='p-card-title card-dataview-header-title'>{data.nome}</span>
-        <span className='p-card-subtitle card-dataview-header-subtitle'>{new Date(data.inicio).toLocaleDateString("pt-br") + " - " + new Date(data.termino).toLocaleDateString("pt-br")}</span>
+        <span className='p-card-subtitle card-dataview-header-subtitle'>{data.inicio + " - " + data.termino}</span>
       </div>
     )
   }
